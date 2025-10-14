@@ -483,14 +483,22 @@ body.menu-open .site-header { pointer-events: auto; }
 }
 
 .weather-card {
-  border-bottom:  3px solid white;
+  display: flex;
+  justify-content: space-between; /* Align h1 to the left and h2 to the right */
+  border-bottom: 3px solid white;
   color: white;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin: 5px 20px;
   font-size: 11px;
   border-radius: 5px;
+  padding: 5px; /* Add padding for better spacing */
+}
+
+.weather-card h1 {
+  margin: 0; /* Remove default margin */
+}
+
+.weather-card h2 {
+  margin: 0; /* Remove default margin */
 }
 
 .side-ad-card {
