@@ -81,80 +81,106 @@
   </div>
 	<div class="hero-side" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
 		<button class="drawer-close" aria-label="Close menu">×</button>
+	<h2 id="timer" style="font-size: 32px; text-align: center; color: white;">00:00xm</h2>
     <div class="weather-card">
 	<h1>Downtown Houston</h1>
+	<h2 id="77002">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Midtown</h1>
+	<h2 id="77002">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>The Woodlands</h1>
+	<h2 id="77380">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Spring</h1>
+	<h2 id="77373">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Kingwood</h1>
+	<h2 id="77339">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Memorial</h1>
+	<h2 id="77024">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Katy</h1>
+	<h2 id="77493">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Pearland</h1>
+	<h2 id="77584">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Sugar Land</h1>
+	<h2 id="77478">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Pasadena</h1>
+	<h2 id="77502">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Baytown</h1>
+	<h2 id="77520">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Humble</h1>
+	<h2 id="77338">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Galveston</h1>
+	<h2 id="77550">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>La Porte</h1>
+	<h2 id="77571">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Conroe</h1>
+	<h2 id="77301">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Tomball</h1>
+	<h2 id="77375">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Cypress</h1>
+	<h2 id="77429">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Missouri City</h1>
+	<h2 id="77459">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Stafford</h1>
+	<h2 id="77477">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Seabrook</h1>
+	<h2 id="77586">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>League City</h1>
+	<h2 id="77573">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Huffman</h1>
+	<h2 id="77336">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Atascocita</h1>
+	<h2 id="77346">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Briarforest</h1>
+	<h2 id="77077">00°</h2>
 	</div>
 	<div class="weather-card">
 	<h1>Channelview</h1>
+	<h2 id="77530">00°</h2>
 	</div>
 	<div class="side-ad-card">
 	
@@ -265,6 +291,54 @@
 	const threshold = 40; const restraint = 120;
 	drawer.addEventListener('touchstart', function(e){ const t = e.changedTouches[0]; startX = t.pageX; startY = t.pageY; }, {passive:true});
 	drawer.addEventListener('touchend', function(e){ if(startX === null) return; const t = e.changedTouches[0]; const distX = t.pageX - startX; const distY = Math.abs(t.pageY - startY); if(distX > threshold && distY < restraint){ closeDrawer(); } startX = null; startY = null; }, {passive:true});
+
+    // Timer functionality for Central Daylight Time (CDT)
+    function updateTimer() {
+        const timerElement = document.getElementById('timer');
+        if (!timerElement) return;
+
+        // Get the current time in CDT
+        const now = new Date();
+        const options = { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: true };
+        const timeString = new Intl.DateTimeFormat('en-US', options).format(now);
+
+        // Update the timer element
+        timerElement.textContent = timeString;
+    }
+
+    // Update the timer every second
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Weather functionality
+    const weatherApiKey = 'c2220dbbb713e0f1476fb2717920c80a'; // Replace with your OpenWeatherMap API key
+    const zipCodes = ['77002', '77380', '77373', '77339', '77024', '77493', '77584', '77478', '77502', '77520', '77338', '77550', '77571', '77301', '77375', '77429', '77459', '77477', '77586', '77573', '77336', '77346', '77077', '77530'];
+
+    async function fetchWeather(zip) {
+        const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${weatherApiKey}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to fetch weather for ${zip}`);
+            const data = await response.json();
+            return data.main.temp; // Temperature in Fahrenheit
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async function updateWeather() {
+        for (const zip of zipCodes) {
+            const temp = await fetchWeather(zip);
+            const weatherElement = document.getElementById(zip);
+            if (weatherElement && temp !== null) {
+                weatherElement.textContent = `${Math.round(temp)}°F`;
+            }
+        }
+    }
+
+    // Fetch and update weather data
+    updateWeather();
 
 })();
 </script>
