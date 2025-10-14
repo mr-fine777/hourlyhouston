@@ -347,15 +347,25 @@
             if (!response.ok) throw new Error(`Failed to fetch weather for ${lat},${lon}: ${response.statusText}`);
             const data = await response.json();
 
-            // Use the forecast URL to get the actual weather data
-            const forecastUrl = data.properties.forecast;
-            const forecastResponse = await fetch(forecastUrl);
-            if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast: ${forecastResponse.statusText}`);
-            const forecastData = await forecastResponse.json();
+            // Use the hourly forecast URL to get the actual weather data
+            const hourlyForecastUrl = data.properties.forecastHourly;
+            const hourlyResponse = await fetch(hourlyForecastUrl);
+            if (!hourlyResponse.ok) throw new Error(`Failed to fetch hourly forecast: ${hourlyResponse.statusText}`);
+            const hourlyData = await hourlyResponse.json();
 
-            // Get the current temperature from the forecast
-            const currentTemp = forecastData.properties.periods[0].temperature;
-            return currentTemp;
+            // Get the current hour's temperature
+            const now = new Date();
+            const currentHour = hourlyData.properties.periods.find(period => {
+                const startTime = new Date(period.startTime);
+                const endTime = new Date(period.endTime);
+                return now >= startTime && now <= endTime;
+            });
+
+            if (currentHour) {
+                return currentHour.temperature; // Temperature in Fahrenheit
+            } else {
+                throw new Error('No hourly forecast data available for the current time.');
+            }
         } catch (error) {
             console.error(`Error fetching weather for ${lat},${lon}:`, error);
             return null;
@@ -379,4 +389,3 @@
 </script>
 </body>
 </html>
-``` 
