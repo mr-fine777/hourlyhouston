@@ -310,32 +310,63 @@
     setInterval(updateTimer, 1000);
     updateTimer();
 
-    // Weather functionality
-    const weatherApiKey = 'c2220dbbb713e0f1476fb2717920c80a'; // Replace with your OpenWeatherMap API key
-    const zipCodes = ['77002', '77380', '77373', '77339', '77024', '77493', '77584', '77478', '77502', '77520', '77338', '77550', '77571', '77301', '77375', '77429', '77459', '77477', '77586', '77573', '77336', '77346', '77077', '77530'];
+    // Weather functionality using NWS API
+    const zipToLatLon = {
+        '77002': { lat: 29.752552016514958, lon: -95.37041452085252 }, // Downtown Houston
+        '77380': { lat: 30.156561330335677, lon: -95.49660348630132 }, // The Woodlands
+        '77373': { lat: 30.060076989444728, lon: -95.38425991103118 }, // Spring
+        '77339': { lat: 30.044222740754748, lon: -95.21623381365497 }, // Kingwood
+        '77024': { lat: 29.785061559286614, lon: -95.55081109649475 }, // Memorial
+        '77493': { lat: 29.86892877253447, lon: -95.83598143772524 }, // Katy
+        '77584': { lat: 29.530560656795313, lon: -95.32129891012985 }, // Pearland
+        '77478': { lat: 29.619364025666467, lon: -95.60777755914671 }, // Sugar Land
+        '77502': { lat: 29.68279320790105, lon: -95.2012332550293 }, // Pasadena
+        '77520': { lat: 29.729931184106412, lon: -94.98634034561468 }, // Baytown
+        '77338': { lat: 29.936252806244546, lon: -95.22575025287787 }, // Humble
+        '77550': { lat: 29.3056910729656, lon: -94.79363293237242 }, // Galveston
+        '77571': { lat: 29.681951027430866, lon: -95.0504713333233 }, // La Porte
+        '77301': { lat: 30.372421017538844, lon: -95.45451089868827 }, // Conroe
+        '77375': { lat: 30.11186355029859, lon: -95.58409952099358 }, // Tomball
+        '77429': { lat: 30.014649608810636, lon: -95.66645508653544 }, // Cypress
+        '77459': { lat: 29.478751988175286, lon: -95.52957848248982 }, // Missouri City
+        '77477': { lat: 29.622026902031646, lon: -95.56770250882548 }, // Stafford
+        '77586': { lat: 29.583383471744852, lon: -95.0348656373267 }, // Seabrook
+        '77573': { lat: 29.495046460629094, lon: -95.09075177952913 }, // League City
+        '77336': { lat: 30.074194329781477, lon: -95.09146031763426 }, // Huffman
+        '77346': { lat: 29.998823130908438, lon: -95.17521190149226 }, // Atascocita
+        '77077': { lat: 29.748046372801, lon: -95.62195225406828 }, // Briarforest
+        '77530': { lat: 29.79477265921269, lon: -95.1119367314215 }  // Channelview
+    };
 
-    async function fetchWeather(zip) {
-        const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${weatherApiKey}`;
+    async function fetchWeatherNWS(lat, lon) {
+        const url = `https://api.weather.gov/points/${lat},${lon}`;
         try {
-            console.log(`Fetching weather for zip: ${zip}`);
-            console.log(`URL: ${url}`);
+            // Fetch the forecast URL from the NWS API
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed to fetch weather for ${zip}: ${response.statusText}`);
+            if (!response.ok) throw new Error(`Failed to fetch weather for ${lat},${lon}: ${response.statusText}`);
             const data = await response.json();
-            console.log(`Weather data for ${zip}:`, data);
-            return data.main.temp; // Temperature in Fahrenheit
+
+            // Use the forecast URL to get the actual weather data
+            const forecastUrl = data.properties.forecast;
+            const forecastResponse = await fetch(forecastUrl);
+            if (!forecastResponse.ok) throw new Error(`Failed to fetch forecast: ${forecastResponse.statusText}`);
+            const forecastData = await forecastResponse.json();
+
+            // Get the current temperature from the forecast
+            const currentTemp = forecastData.properties.periods[0].temperature;
+            return currentTemp;
         } catch (error) {
-            console.error(`Error fetching weather for ${zip}:`, error);
+            console.error(`Error fetching weather for ${lat},${lon}:`, error);
             return null;
         }
     }
 
     async function updateWeather() {
-        for (const zip of zipCodes) {
-            const temp = await fetchWeather(zip);
+        for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
+            const temp = await fetchWeatherNWS(lat, lon);
             const weatherElement = document.getElementById(zip);
             if (weatherElement && temp !== null) {
-                weatherElement.textContent = `${Math.round(temp)}°F`;
+                weatherElement.textContent = `${temp}°F`;
             }
         }
     }
@@ -347,3 +378,4 @@
 </script>
 </body>
 </html>
+``` 
