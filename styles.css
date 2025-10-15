@@ -18,6 +18,11 @@
   user-select: none; /* Standard syntax */
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 html {
   background-color: #0e1623;
 }
@@ -536,6 +541,20 @@ body.menu-open .site-header { pointer-events: auto; }
   margin: 0; /* Remove default margin */
   text-shadow: 2px 2px 4px #000000;
 }
+
+/* Temperature color classes (applied to the h2 inside .weather-card)
+   Ranges mapped as: >=90, 80-89, 70-79, 60-69, 50-59, 40-49, 30-39, <=29 */
+.weather-card h2.temp-90 { color: #ff795f; }
+.weather-card h2.temp-80 { color: #f28774; }
+.weather-card h2.temp-70 { color: #e4958a; }
+.weather-card h2.temp-60 { color: #d4a5a3; }
+.weather-card h2.temp-50 { color: #c4b6bd; }
+.weather-card h2.temp-40 { color: #b5c5d4; }
+.weather-card h2.temp-30 { color: #afcbde; }
+.weather-card h2.temp-29 { color: #9fdcf8; }
+
+/* smooth color transitions when temps update */
+.weather-card h2 { transition: color 180ms ease-in-out; }
 
 .side-ad-card {
   margin: 100px auto 0 auto;
