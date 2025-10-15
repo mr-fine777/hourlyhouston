@@ -315,6 +315,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: transform 0.3s, box-shadow 0.3s;
+  height: 375px
 }
 
 .story-card:hover {
