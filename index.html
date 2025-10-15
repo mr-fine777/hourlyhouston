@@ -32,53 +32,19 @@
 <!-- clickable backdrop: clicking will close the drawer -->
 <div class="backdrop" aria-hidden="true"></div>
 <div class="hero-container">
-  <div class="hero-body">
-	<div class="hero">
-		<img src="https://s.hdnux.com/photos/01/54/64/35/28526417/3/ratio3x2_960.webp" alt="This Is It Soul Food" />
-		<h1>This Is It Soul Food closes historic Third Ward location after 66 years</h1>
-		<p>But it's not the end for this Black-owned Houston restaurant.</p>
-		<h4>TIME</h4>
-	</div>
-	<div class="recent-post-tier">
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
-		<div class="story-card">
-			<img src="https://pomf2.lain.la/f/hiqorfij.jpg">
-			<h1>Story Title</h1>
-			<p>The sleek design of the new smartphone offers a stylish solution for tech enthusiasts, combining cutting-edge features with user-friendly functionality. Its vibrant display and powerful battery ensure that users stay connected and engaged throughout the day.</p>
-		</div>
+	<div class="hero-body">
+		<!-- hero will be rendered here -->
+		<div class="hero" tabindex="-1" aria-live="polite"></div>
+		<!-- grid container for story cards (3 x 2 = 6 per page) -->
+		<div class="recent-post-tier" role="list"></div>
 		<div class="page-holding">
-		<div class="page-indexer">
-			<button class="arrow left">&#8592;</button>
-			<span class="page-number">Page 1</span>
-			<button class="arrow right">&#8594;</button>
-		</div>
+			<div class="page-indexer">
+				<button class="arrow left" aria-label="Previous page">&#8592;</button>
+				<span class="page-number">Page 1</span>
+				<button class="arrow right" aria-label="Next page">&#8594;</button>
+			</div>
 		</div>
 	</div>
-  </div>
 	<div class="hero-side" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
 		<button class="drawer-close" aria-label="Close menu">×</button>
 	<h2 id="timer" style="font-size: 32px; text-align: center; color: white;">00:00xm</h2>
@@ -386,7 +352,113 @@
     updateWeather();
 
 })();
+
+// Client-side posts rendering: fetch from serverless API and populate hero + story cards
+(function(){
+	const HERO_CHAR_LIMIT = 300; // hero paragraph truncate
+	const STORY_CHAR_LIMIT = 140; // story-card paragraph truncate
+
+	function truncate(str, n){
+		if(!str) return '';
+		return str.length > n ? str.slice(0,n).trim().replace(/\s+$/,'') + '…' : str;
+	}
+
+	function timeAgo(iso){
+		if(!iso) return '';
+		const then = new Date(iso);
+		const now = new Date();
+		const diffMs = now - then;
+		const diffMins = Math.floor(diffMs / 60000);
+		if(diffMins < 1) return 'just now';
+		if(diffMins < 60) return `${diffMins}m ago`;
+		const diffHours = Math.floor(diffMins / 60);
+		return `${diffHours}h ago`;
+	}
+
+			// Pagination state
+			let currentPage = 1;
+			const perPage = 6; // 3x2 grid
+			let totalItems = 0;
+
+			function setPager(page, total){
+				totalItems = typeof total === 'number' ? total : 0;
+				const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+				const left = document.querySelector('.page-indexer .arrow.left');
+				const right = document.querySelector('.page-indexer .arrow.right');
+				const pageNum = document.querySelector('.page-indexer .page-number');
+				if(pageNum) pageNum.textContent = `Page ${page}`;
+				if(left) left.disabled = page <= 1;
+				if(right) right.disabled = page >= totalPages;
+			}
+
+			async function loadHero(){
+				try{
+					const r = await fetch('/api/posts?hero=1');
+					if(!r.ok) throw new Error('hero fetch failed');
+					const data = await r.json();
+					const hero = data && data.post ? data.post : null;
+					const heroEl = document.querySelector('.hero');
+					if(!heroEl) return;
+					heroEl.innerHTML = '';
+					if(!hero){ heroEl.textContent = 'No posts available'; return; }
+					const heroImg = document.createElement('img'); heroImg.src = hero.url || ''; heroImg.alt = hero.title || '';
+					const h1 = document.createElement('h1'); h1.textContent = hero.title || '';
+					const p = document.createElement('p'); p.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
+					const h4 = document.createElement('h4'); h4.textContent = timeAgo(hero.scrapedAt || null);
+					heroEl.appendChild(heroImg); heroEl.appendChild(h1); heroEl.appendChild(p); heroEl.appendChild(h4);
+				}catch(err){ console.error('loadHero error', err); }
+			}
+
+			async function loadPage(page){
+				try{
+					const r = await fetch(`/api/posts?page=${page}&perPage=${perPage}`);
+					if(!r.ok) throw new Error('page fetch failed');
+					const data = await r.json();
+					const posts = data.posts || [];
+					const total = typeof data.total === 'number' ? data.total : 0;
+					const listEl = document.querySelector('.recent-post-tier');
+					if(!listEl) return;
+					listEl.innerHTML = '';
+					// render received posts
+					for(const post of posts){
+						const card = document.createElement('div'); card.className = 'story-card';
+						const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
+						const title = document.createElement('h1'); title.textContent = post.title || '';
+						const body = document.createElement('p'); body.textContent = truncate(post.body || '', STORY_CHAR_LIMIT);
+						card.appendChild(img); card.appendChild(title); card.appendChild(body);
+						listEl.appendChild(card);
+					}
+					// add placeholders to keep 3x2 grid layout if fewer than perPage
+					const received = posts.length;
+					for(let i=0;i<perPage-received;i++){
+						const ph = document.createElement('div'); ph.className = 'story-card placeholder'; ph.setAttribute('aria-hidden','true');
+						ph.style.visibility = 'hidden'; ph.style.height = '1px'; listEl.appendChild(ph);
+					}
+					setPager(page, total);
+				}catch(err){ console.error('loadPage error', err); }
+			}
+
+			// wire pager controls
+			document.addEventListener('click', function(e){
+				if(e.target.matches('.page-indexer .arrow.left')){
+					if(currentPage>1){ currentPage--; loadPage(currentPage); }
+					return;
+				}
+				if(e.target.matches('.page-indexer .arrow.right')){
+					const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+					if(currentPage < totalPages){ currentPage++; loadPage(currentPage); }
+					return;
+				}
+			});
+
+			async function loadPosts(){
+				await loadHero();
+				await loadPage(currentPage);
+			}
+
+	// Load posts on DOMContentLoaded
+	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadPosts); else loadPosts();
+})();
 </script>
 </body>
 </html>
-
