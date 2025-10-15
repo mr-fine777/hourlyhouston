@@ -227,7 +227,7 @@ body {
 /* Tweak typography for small screens */
 @media (max-width: 420px) {
   .site-title { font-size: 1rem; }
-  .hero h1 { font-size: 1.25rem; bottom: 90px; left: 16px; margin-bottom: 20px; }
+  .hero h1 { font-size: 1.25rem; bottom: 160px; left: 16px; margin-bottom: 20px; }
   .hero p { font-size: 1rem; left: 16px; }
 }
 
