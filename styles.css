@@ -213,7 +213,7 @@ body {
 /* Tweak typography for small screens */
 @media (max-width: 420px) {
   .site-title { font-size: 1rem; }
-  .hero h1 { font-size: 1.25rem; bottom: 120px; left: 16px; margin-bottom: 20px; }
+  .hero h1 { font-size: 1.25rem; bottom: 90px; left: 16px; margin-bottom: 20px; }
   .hero p { font-size: 1rem; left: 16px; }
 }
 
@@ -570,7 +570,7 @@ body.menu-open .site-header { pointer-events: auto; }
 
 .hero h1 {
   position: absolute;
-  bottom: 90px;
+  bottom: 60px;
   left: 30px;
   color: #fff;
   font-size: 1.8rem;
@@ -628,4 +628,24 @@ body.menu-open .site-header { pointer-events: auto; }
 
   /* ensure story cards stretch full width */
   .story-card { width: 100%; }
+}
+
+.article-section {
+  padding: 25px;
+}
+
+.article-section h1{
+  text-transform: uppercase;
+  font-size: 3rem;
+}
+
+.article-section h2{
+  text-transform: uppercase;
+  font-size: 1.7rem;
+  margin-bottom: 40px;
+}
+
+.article-section p{
+  text-transform: uppercase;
+  font-size: 1.2rem;
 }
