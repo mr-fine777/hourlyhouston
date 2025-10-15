@@ -570,6 +570,7 @@ body.menu-open .site-header { pointer-events: auto; }
   width: 100%;
   height: 550px;
   overflow: hidden;
+  margin-bottom: 50px;
 }
 
 .hero img {
