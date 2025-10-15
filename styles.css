@@ -234,6 +234,10 @@ body {
   box-shadow: 0 6px 18px rgba(2,6,23,0.45);
   margin-bottom: 2vw;
   height: auto; /* Allow height to adjust based on content */
+  display: flex; /* make hero-body a column flex container so pager can stick to bottom */
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 60vh; /* ensure there's room for content and the pager to sit at bottom */
 }
 
 .recent-post-tier {
@@ -243,6 +247,9 @@ body {
   padding: 10px;
   align-items: start;
 }
+
+/* allow the grid to grow and push the pager to the bottom of .hero-body */
+.recent-post-tier { flex: 1 1 auto; }
 
 .page-holding {
   grid-column: 1 / -1;
@@ -255,6 +262,17 @@ body {
   box-shadow: 0 6px 20px rgba(2,6,23,0.35);
   border: 1px solid rgba(255,255,255,0.06);
   color: white;
+  margin-bottom: 20px;
+}
+
+/* push pager to the bottom of the .hero-body container */
+.hero-body .page-holding { margin-top: auto; }
+
+/* sticky fallback: keep pager visible near bottom on long content */
+.page-holding.sticky {
+  position: sticky;
+  bottom: 12px;
+  z-index: 100;
 }
 
 /* responsive: let the pager fill available width on narrow screens */
@@ -552,7 +570,7 @@ body.menu-open .site-header { pointer-events: auto; }
 
 .hero h1 {
   position: absolute;
-  bottom: 90px;
+  bottom: 60px;
   left: 30px;
   color: #fff;
   font-size: 1.8rem;
