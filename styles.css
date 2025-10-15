@@ -49,6 +49,7 @@ body {
   backdrop-filter: blur(6px);
   box-shadow: 0 6px 18px rgba(2,6,23,0.45);
   color: white;
+  text-shadow: 2px 2px 4px #000000;
   margin-bottom: 2vw;
   z-index: 2000; /* ensure header (and hamburger) sits above the drawer/backdrop */
 }
@@ -93,6 +94,7 @@ body {
   padding: 1rem;
   background-color: #0e1623;
   color: white;
+  text-shadow: 2px 2px 4px #000000;
   font-size: 0.9rem;
   margin-top: 2rem;
 }
@@ -343,6 +345,7 @@ body {
   padding-top: 20px;
   padding-bottom: 20px;
   box-shadow: 0 6px 18px rgba(2,6,23,0.45); 
+  text-shadow: 2px 2px 4px #000000;
   margin-bottom: 2vw;
   height: auto; /* Allow height to stretch with .hero-body */
 }
@@ -495,10 +498,12 @@ body.menu-open .site-header { pointer-events: auto; }
 
 .weather-card h1 {
   margin: 0; /* Remove default margin */
+  text-shadow: 2px 2px 4px #000000;
 }
 
 .weather-card h2 {
   margin: 0; /* Remove default margin */
+  text-shadow: 2px 2px 4px #000000;
 }
 
 .side-ad-card {
