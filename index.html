@@ -405,7 +405,15 @@
 					const h1 = document.createElement('h1'); h1.textContent = hero.title || '';
 					const p = document.createElement('p'); p.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
 					const h4 = document.createElement('h4'); h4.textContent = timeAgo(hero.scrapedAt || null);
-					heroEl.appendChild(heroImg); heroEl.appendChild(h1); heroEl.appendChild(p); heroEl.appendChild(h4);
+					// wrap hero content in a link to article page using encoded title
+					const a = document.createElement('a');
+					a.href = `/article.html?${encodeURIComponent(hero.title || '')}`;
+					a.setAttribute('aria-label', hero.title || 'Open article');
+					a.appendChild(heroImg);
+					a.appendChild(h1);
+					a.appendChild(p);
+					a.appendChild(h4);
+					heroEl.appendChild(a);
 				}catch(err){ console.error('loadHero error', err); }
 			}
 
@@ -425,7 +433,14 @@
 						const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
 						const title = document.createElement('h1'); title.textContent = post.title || '';
 						const body = document.createElement('p'); body.textContent = truncate(post.body || '', STORY_CHAR_LIMIT);
-						card.appendChild(img); card.appendChild(title); card.appendChild(body);
+						// make the whole card clickable and navigate to article.html by title
+						const link = document.createElement('a');
+						link.href = `/article.html?${encodeURIComponent(post.title || '')}`;
+						link.setAttribute('aria-label', post.title || 'Open article');
+						link.appendChild(img);
+						link.appendChild(title);
+						link.appendChild(body);
+						card.appendChild(link);
 						listEl.appendChild(card);
 					}
 					// add placeholders to keep 3x2 grid layout if fewer than perPage
