@@ -355,7 +355,7 @@
 
 // Client-side posts rendering: fetch from serverless API and populate hero + story cards
 (function(){
-	const HERO_CHAR_LIMIT = 300; // hero paragraph truncate
+	const HERO_CHAR_LIMIT = 168; // hero paragraph truncate (changed per request)
 	const STORY_CHAR_LIMIT = 140; // story-card paragraph truncate
 
 	function truncate(str, n){
