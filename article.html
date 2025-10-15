@@ -1,41 +1,4 @@
 <!-- Article page client logic: fetch a post by title query and populate the page -->
-(function(){
-	function qsTitle(){
-	try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
-	}
-
-	function formatScrapedAt(iso){
-	if(!iso) return '';
-	const d = new Date(iso);
-	return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-	}
-
-	function nl2br(str){
-	if(!str) return '';
-	// split on double newlines for paragraphs and single newlines for breaks
-	return str.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br/>')}</p>`).join('\n');
-	}
-
-	async function loadArticle(){
-	const title = qsTitle();
-	if(!title) return;
-	try{
-	const r = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
-	if(!r.ok) throw new Error('Article fetch failed');
-	const data = await r.json();
-	const post = data && data.post ? data.post : null;
-	if(!post) return;
-	// populate hero image
-	const heroEl = document.querySelector('.hero');
-	if(heroEl){ heroEl.innerHTML = ''; const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || ''; heroEl.appendChild(img); }
-	const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
-	const dt = document.getElementById('date'); if(dt) dt.textContent = formatScrapedAt(post.scrapedAt || null);
-	const b = document.getElementById('body'); if(b) b.innerHTML = nl2br(post.body || '');
-	}catch(err){ console.error('loadArticle error', err); }
-	}
-
-	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadArticle); else loadArticle();
-})();
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -496,6 +459,51 @@
 	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadPosts); else loadPosts();
 })();
 
+</script>
+<script>
+// Final article loader: fetch post by title from querystring and populate the page (hero image, title, date, body)
+(function(){
+	function getTitleFromQS(){
+		try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
+	}
+
+	function formatDate(iso){
+		if(!iso) return '';
+		const d = new Date(iso);
+		return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+	}
+
+	function bodyToHtml(text){
+		if(!text) return '';
+		return text.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br/>')}</p>`).join('\n');
+	}
+
+	async function load(){
+		const title = getTitleFromQS();
+		if(!title) return;
+		try{
+			const res = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
+			if(!res.ok) return; // not found or error
+			const json = await res.json();
+			const post = json && json.post ? json.post : null;
+			if(!post) return;
+			// replace hero content with only the article image
+			const heroEl = document.querySelector('.hero');
+			if(heroEl){
+				heroEl.innerHTML = '';
+				const img = document.createElement('img');
+				img.src = post.url || '';
+				img.alt = post.title || '';
+				heroEl.appendChild(img);
+			}
+			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
+			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
+			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
+		}catch(err){ console.error('article load error', err); }
+	}
+
+	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();
+})();
 </script>
 </body>
 </html>
