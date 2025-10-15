@@ -1,667 +1,529 @@
-/* Roboto helper class (use this on elements that need explicit Roboto settings) */
-.roboto {
-  font-family: "Roboto", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400; /* default weight; change to 100/300/700/etc as needed */
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Roboto", sans-serif;
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-html {
-  background-color: #0e1623;
-}
-
-body {
-  height: 100%;
-  background-color: #ddd;
-}
-
-
-/* CSS for the header */
-:root{
-  --bg: #0f1724;            /* deep background */
-  --muted: #fff;         /* muted text */
-  --glass: rgba(255,255,255,0.06);
-  --radius: 10px;
-}
-
-/* basic reset for elements used here */
-.site-header, .header-left, .header-right {
-  box-sizing: border-box;
-}
-
-/* header container */
-.site-header{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 1rem;
-  background: linear-gradient(180deg, rgba(15,23,36,1) 0%, rgba(8,13,22,1) 100%);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 6px 18px rgba(2,6,23,0.45);
-  color: white;
-  text-shadow: 2px 2px 4px #000000;
-  margin-bottom: 2vw;
-  z-index: 2000; /* ensure header (and hamburger) sits above the drawer/backdrop */
-}
-
-/* left side: logo + title */
-.header-left{
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* make the header-left anchor behave like the container so logo+title remain inline and clickable */
-.header-left .home-link{
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-.logo{
-  display: block;
-  width: 44px;              /* tweak as needed */
-  height: 44px;
-  object-fit: contain;
-  border-radius: 8px;
-  background: var(--glass);
-  padding: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35) inset;
-}
-
-/* title */
-.site-title{
-  margin: 0;
-  font-size: 23px;
-  letter-spacing: 0.2px;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1;
-}
-
-/* right side */
-.header-right{
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #0e1623;
-  color: white;
-  text-shadow: 2px 2px 4px #000000;
-  font-size: 0.9rem;
-  margin-top: 2rem;
-}
-
-/* button and anchor styles */
-.cta-link{
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn{
-  display: block;
-  width: 120px;
-  height: 44px;
-  object-fit: contain;
-  border-radius: 8px;
-  background: var(--glass);
-  padding: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35) inset;
-  border: 0px solid #000;
-  color: #fff;
-  font-size: 16px;
-}
-
-/* small screens: stack and shrink */
-@media (max-width: 520px){
-  .site-header{
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.6rem;
-  }
-  .header-left{
-    justify-content: flex-start;
-  }
-  .header-right{
-    justify-content: flex-end;
-    margin-top: 0.45rem;
-  }
-  .site-title{
-    font-size: 1rem;
-  }
-  .logo{
-    width: 40px;
-    height: 40px;
-  }
-}
-
-/* Medium screens: tablet */
-@media (max-width: 980px) {
-  .recent-post-tier {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .hero-body {
-    flex: 1 1 60%;
-    margin-left: 1rem;
-  }
-
-  .hero-side {
-    width: 40%;
-    margin-right: 1rem;
-  }
-}
-
-/* Small screens: phones */
-@media (max-width: 520px) {
-  .recent-post-tier {
-    grid-template-columns: 1fr;
-    padding: 8px;
-    gap: 12px;
-  }
-
-  .hero-body {
-    width: 100%;
-    margin-left: 0;
-    padding: 0.5rem;
-  }
-
-  .hero-side {
-    width: 100%;
-    margin-right: 0;
-    padding: 0 0.5rem 1rem 0.5rem;
-  }
-
-  .hero {
-    height: auto; /* allow hero to grow with content */
-  }
-
-  .hero img, .story-card img {
-    height: auto;
-    max-height: 420px;
-  }
-
-  .page-holding {
-    max-width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 20px;
-  }
-
-  /* remove extra gaps/margins on very small screens */
-  .hero-container { gap: 0; margin-bottom: 0; }
-  .hero-body { margin-left: 0; padding: 0; }
-  .hero-side { margin-right: 0; padding: 0; }
-}
-
-/* Zoom/overflow safety: ensure story cards don't overflow container when page is zoomed */
-@media (min-resolution: 2dppx) {
-  .story-card img {
-    max-width: 100%;
-    height: auto;
-  }
-}
-
-/* Tweak typography for small screens */
-@media (max-width: 420px) {
-  .site-title { font-size: 1rem; }
-  .hero h1 { font-size: 1.25rem; bottom: 90px; left: 16px; margin-bottom: 20px; }
-  .hero p { font-size: 1rem; left: 16px; }
-}
-
-.hero-container {
-  display: flex;
-  width: 100%;
-  gap: 2vw;
-  margin-bottom: 2vw;
-  flex-wrap: wrap; /* allow sidebar to drop below on narrow screens */
-  align-items: stretch; /* Ensure children stretch to the same height */
-}
-
-.hero-body {
-  flex: 1 1 680px; /* Flexible width with a base size */
-  min-width: 300px;
-  background-color: #fff;
-  margin-left: 2vw;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.45);
-  margin-bottom: 2vw;
-  height: auto; /* Allow height to adjust based on content */
-  display: flex; /* make hero-body a column flex container so pager can stick to bottom */
-  flex-direction: column;
-  align-items: stretch;
-  min-height: 60vh; /* ensure there's room for content and the pager to sit at bottom */
-}
-
-.recent-post-tier {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns of equal width */
-  gap: 20px; /* space between items, adjust as needed */
-  padding: 10px;
-  align-items: start;
-}
-
-/* allow the grid to grow and push the pager to the bottom of .hero-body */
-.recent-post-tier { flex: 1 1 auto; }
-
-.page-holding {
-  grid-column: 1 / -1;
-  width: 100%;
-  max-width: 680px; /* keeps pager visually balanced with story grid */
-  margin: 30px auto 0; /* top 30px, horizontally centered */
-  border-radius: 14px;
-  padding: 0.5rem;
-  background: linear-gradient(90deg, rgba(15,23,36,0.95), rgba(8,13,22,0.95));
-  box-shadow: 0 6px 20px rgba(2,6,23,0.35);
-  border: 1px solid rgba(255,255,255,0.06);
-  color: white;
-  margin-bottom: 40px;
-}
-
-/* push pager to the bottom of the .hero-body container */
-.hero-body .page-holding { margin-top: auto; }
-
-/* sticky fallback: keep pager visible near bottom on long content */
-.page-holding.sticky {
-  position: sticky;
-  bottom: 12px;
-  z-index: 100;
-}
-
-/* responsive: let the pager fill available width on narrow screens */
-@media (max-width: 520px) {
-  .page-holding {
-    width: 100%;
-    margin: 20px 0 0 0;
-    border-radius: 12px;
-    padding: 0.5rem;
-  }
-}
-
-
-.page-indexer {
-  display: flex;
-  justify-content: center; /* centers the inner content */
-  align-items: center;
-  gap: 12px;
-}
-
-.page-indexer .arrow {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
-}
-
-.page-indexer .arrow:hover,
-.page-indexer .arrow:focus {
-  transform: translateY(-2px);
-  outline: none;
-  color: #fff;
-}
-
-.page-indexer .page-number {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.04);
-  box-shadow: 0 2px 8px rgba(2,6,23,0.35) inset;
-}
-
-.story-card {
-  background-color: #ffffff; /* white background for the article */
-  border-radius: 8px;        /* slightly rounded corners */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* subtle shadow */
-  overflow: hidden;          /* ensures image corners are rounded */
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s, box-shadow 0.3s;
-  height: 375px
-}
-
-.story-card:hover {
-  transform: translateY(-5px); /* subtle lift on hover */
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.story-card img {
-  width: 100%;
-  height: 180px;   /* fixed height, can adjust */
-  object-fit: cover; /* ensures image covers container nicely */
-}
-
-.story-card h1 {
-  font-size: 1.2rem;
-  margin: 16px;
-  color: #111;
-}
-
-.story-card p {
-  font-size: 0.95rem;
-  margin: 0 16px 16px 16px;
-  color: #444;
-  line-height: 1.5;
-}
-
-.hero-side {
-  width: 25%; /* Sidebar width */
-  background: linear-gradient(90deg, rgba(15,23,36,1) 0%, rgba(8,13,22,1) 100%);
-  margin-right: 2vw;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.45); 
-  text-shadow: 2px 2px 4px #000000;
-  margin-bottom: 2vw;
-  height: auto; /* Allow height to stretch with .hero-body */
-}
-
-/* Mobile: hide the sidebar by default and present it as an off-canvas drawer toggled by the hamburger */
-/* Checkbox pattern removed in favor of a button-driven drawer; keep this placeholder in case it's reintroduced */
-.menu-toggle { display: none; }
-
-.hamburger {
-  display: none; /* visible only on small screens via media query */
-  width: 36px;
-  height: 28px;
-  position: relative;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  padding: 6px;
-  line-height: 0;
-}
-.hamburger::before,
-.hamburger::after,
-.hamburger span {
-  content: "";
-  display: block;
-  height: 3px;
-  background: #fff;
-  border-radius: 3px;
-  position: absolute;
-  left: 0;
-  right: 0;
-}
-.hamburger::before { top: 4px; }
-.hamburger span { top: 50%; transform: translateY(-50%); }
-.hamburger::after { bottom: 0; }
-
-/* hide the drawer close button on larger screens (only needed for mobile drawer) */
-.drawer-close { display: none; }
-
-@media (max-width: 520px) {
-  .hamburger { display: inline-block; margin-left: 8px; }
-  .header-right { align-items: center; gap: 8px; }
-
-  /* fine-tune hamburger visuals (three bars) */
-  .hamburger::before,
-  .hamburger::after,
-  .hamburger span {
-    content: "";
-    display: block;
-    height: 3px;
-    background: #fff;
-    border-radius: 3px;
-    position: absolute;
-    left: 6px;
-    right: 6px;
-  }
-  .hamburger::before { top: 6px; }
-  .hamburger span { top: 50%; transform: translateY(-50%); }
-  .hamburger::after { bottom: 6px; }
-
-  .hamburger:focus { outline: 2px solid rgba(255,255,255,0.18); border-radius: 6px; }
-
-  /* drawer close button */
-  .drawer-close {
-    position: absolute;
-    right: 12px;
-    top: 10px;
-    background: transparent;
-    border: 0;
-    color: #fff;
-    font-size: 28px;
-    line-height: 1;
-    padding: 6px 8px;
-    cursor: pointer;
-    border-radius: 6px;
-  }
-  .drawer-close { display: block; }
-  .drawer-close:focus { outline: 2px solid rgba(255,255,255,0.18); }
-
-  /* allow vertical panning by default on mobile so touch scrolls the page */
-  html, body { touch-action: pan-y; -ms-touch-action: pan-y; }
-
-  /* off-canvas drawer */
-  .hero-side {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100vh;
-    width: 76vw;
-    max-width: 360px;
-    transform: translateX(110%);
-    transition: transform 0.28s cubic-bezier(.2,.9,.3,1), box-shadow 0.28s ease;
-    z-index: 1200;
-    padding: 1.25rem;
-    /* don't intercept pointer events while hidden off-canvas */
-    pointer-events: none;
-    /* softer, slightly translucent background so it blends with content */
-    background: linear-gradient(180deg, rgba(8,13,22,0.96), rgba(15,23,36,0.92));
-    border-left: 1px solid rgba(255,255,255,0.04);
-    margin: 0;
-    overflow-y: auto; /* allow the drawer to scroll independently */
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y; /* allow vertical scroll gestures inside the drawer */
-    box-shadow: -18px 0 40px rgba(2,6,23,0.35);
-  }
-
-  /* when menu toggle is checked, slide the drawer in */
-  /* when body has .menu-open, slide the drawer in */
-  body.menu-open .hero-side {
-    transform: translateX(0%);
-    /* enable interaction when visible */
-    pointer-events: auto;
-  }
-
-  /* backdrop element - will be toggled visible when the menu checkbox is checked */
-  .backdrop{
-    opacity: 0; 
-    visibility: hidden; 
-    position: fixed; 
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 1190; /* keep below drawer */
-    cursor: pointer;
-    transition: opacity 240ms ease, visibility 240ms ease;
-    /* don't block pointer events when hidden */
-    pointer-events: none;
-  }
-
-  body.menu-open .backdrop { opacity: 1; visibility: visible; pointer-events: auto; }
-}
-
-/* header remains interactive; when menu is open the header should still be above the dim */
-body.menu-open .site-header { pointer-events: auto; }
-
-/* helper to lock body scroll when drawer open (JS toggles this) - only on small screens */
-@media (max-width: 520px) {
-  body.no-scroll { overflow: hidden; }
-}
-
-.weather-card {
-  display: flex;
-  justify-content: space-between; /* Align h1 to the left and h2 to the right */
-  border-bottom: 3px solid white;
-  color: white;
-  margin: 5px 20px;
-  font-size: 11px;
-  border-radius: 5px;
-  padding: 5px; /* Add padding for better spacing */
-}
-
-.weather-card h1 {
-  margin: 0; /* Remove default margin */
-  text-shadow: 2px 2px 4px #000000;
-}
-
-.weather-card h2 {
-  margin: 0; /* Remove default margin */
-  text-shadow: 2px 2px 4px #000000;
-}
-
-.side-ad-card {
-  margin: 100px auto 0 auto;
-  width: 300px;
-  height: 250px;
-  background: linear-gradient(270deg, rgba(15,23,36,1) 0%, rgba(8,13,22,1) 100%);
-  border: 3px solid white;
-  border-radius: 5px;
-}
-
-.hero {
-  position: relative;
-  width: 100%;
-  height: 550px;
-  overflow: hidden;
-  margin-bottom: 50px;
-}
-
-.hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.6s ease; /* smooth zoom */
-}
-/* Zoom effect */
-.hero:hover img {
-  transform: scale(1.05);
-}
-
-/* Bottom vignette overlay */
-.hero::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-  pointer-events: none;
-}
-
-.hero h1 {
-  position: absolute;
-  bottom: 60px;
-  left: 30px;
-  color: #fff;
-  font-size: 1.8rem;
-  font-weight: bold;
-  max-width: 80%;
-  z-index: 1;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
-  margin-bottom: 20px;
-}
-
-.hero p {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
-  max-width: 80%;
-  z-index: 2;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
-}
-
-.hero h4 {
-  position: absolute;
-  bottom: 30px;
-  right: 30px;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
-  max-width: 80%;
-  z-index: 2;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
-}
-
-/* Strong mobile overrides: make content single-column and let hero-body take full width
-   This ensures the sidebar (hero-side) acts as an off-canvas drawer while main content fills the viewport. */
-@media (max-width: 520px) {
-  .recent-post-tier {
-    grid-template-columns: 1fr; /* single column list on mobile */
-    gap: 12px;
-    padding: 8px 4px;
-  }
-
-  .hero-body {
-    flex: 1 1 100% !important; /* occupy full available width */
-    min-width: 0 !important;    /* allow shrinking inside flex container */
-    width: 100% !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-  }
-
-  .hero-container {
-    gap: 0 !important;
-  }
-
-  /* ensure story cards stretch full width */
-  .story-card { width: 100%; }
-}
-
-.article-section {
-  padding: 25px;
-}
-
-.article-section h1{
-  text-transform: uppercase;
-  font-size: 3rem;
-}
-
-.article-section h2{
-  font-size: 1.7rem;
-  margin-bottom: 40px;
-}
-
-.article-section p{
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
-
+<!-- Article page client logic: fetch a post by title query and populate the page -->
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<title>Hourly Houston</title>
+	<meta name="description" content="Get updated content for Houston Hourly!">
+	<meta name="author" content="Hourly Houston">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8">
+	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
+	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
+</head>
+<body>
+	<!-- Mobile menu toggle: button-driven accessible drawer (replaces checkbox pattern) -->
+<header class="site-header">
+	<div class="header-left">
+		<a href="/" class="home-link">
+			<img src="img/icoW.png" alt="Hourly Houston logo" class="logo">
+			<h2 class="site-title">Hourly Houston</h2>
+		</a>
+	</div>
+
+  <div class="header-right">
+		<a href="#" class="cta-link" aria-label="Test">
+			<button class="btn">Test</button>
+		</a>
+        	<!-- hamburger button: toggles the drawer on small screens -->
+        	<button class="hamburger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false" title="Open menu"><span class="bar"></span></button>
+  </div>
+</header>
+<!-- clickable backdrop: clicking will close the drawer -->
+<div class="backdrop" aria-hidden="true"></div>
+<div class="hero-container">
+<div class="hero-body">
+		
+		<div class="hero" tabindex="-1" aria-live="polite"></div>
+		
+	<div class="article-section">
+	<h1 id="title">Article Title</h1>
+	<h2 id="date">Article scrapedAt</h2>
+	<p id="body">Article Body</p>
+	</div>
+	
+	</div>
+	<div class="hero-side" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
+		<button class="drawer-close" aria-label="Close menu">×</button>
+	<h2 id="timer" style="font-size: 32px; text-align: center; color: white;">00:00xm</h2>
+    <div class="weather-card">
+	<h1>Downtown Houston</h1>
+	<h2 id="77002"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Midtown</h1>
+	<h2 id="77006"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>The Woodlands</h1>
+	<h2 id="77380"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Spring</h1>
+	<h2 id="77373"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Kingwood</h1>
+	<h2 id="77339"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Memorial</h1>
+	<h2 id="77024"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Katy</h1>
+	<h2 id="77493"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Pearland</h1>
+	<h2 id="77584"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Sugar Land</h1>
+	<h2 id="77478"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Pasadena</h1>
+	<h2 id="77502"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Baytown</h1>
+	<h2 id="77520"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Humble</h1>
+	<h2 id="77338"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Galveston</h1>
+	<h2 id="77550"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>La Porte</h1>
+	<h2 id="77571"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Conroe</h1>
+	<h2 id="77301"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Tomball</h1>
+	<h2 id="77375"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Cypress</h1>
+	<h2 id="77429"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Missouri City</h1>
+	<h2 id="77459"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Stafford</h1>
+	<h2 id="77477"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Seabrook</h1>
+	<h2 id="77586"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>League City</h1>
+	<h2 id="77573"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Huffman</h1>
+	<h2 id="77336"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Atascocita</h1>
+	<h2 id="77346"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Briarforest</h1>
+	<h2 id="77077"></h2>
+	</div>
+	<div class="weather-card">
+	<h1>Channelview</h1>
+	<h2 id="77530"></h2>
+	</div>
+	<div class="side-ad-card">
+	
+	</div>
+  </div>
+</div>
+<script>
+// Drawer behavior, focus management, ESC handling, swipe-to-close and backdrop handling
+;(function(){
+	const drawer = document.getElementById('drawer');
+	const backdrop = document.querySelector('.backdrop');
+	const openBtn = document.querySelector('.hamburger');
+	const closeBtn = document.querySelector('.drawer-close');
+	if(!drawer || !openBtn) return;
+
+	let lastFocused = null;
+
+	function isSmallViewport(){ return window.matchMedia && window.matchMedia('(max-width: 520px)').matches; }
+
+	function lockScroll(){
+		if(!isSmallViewport()) return;
+		const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+		document.body.dataset.scrollY = String(scrollY);
+		document.body.style.position = 'fixed';
+		document.body.style.top = `-${scrollY}px`;
+		document.body.style.left = '0';
+		document.body.style.right = '0';
+		document.body.style.width = '100%';
+		document.body.classList.add('no-scroll');
+	}
+
+	function unlockScroll(){
+		const prev = document.body.dataset.scrollY ? parseInt(document.body.dataset.scrollY, 10) : 0;
+		document.body.style.position = '';
+		document.body.style.top = '';
+		document.body.style.left = '';
+		document.body.style.right = '';
+		document.body.style.width = '';
+		delete document.body.dataset.scrollY;
+		document.body.classList.remove('no-scroll');
+		window.scrollTo(0, prev);
+	}
+
+	function openDrawer(){
+		lastFocused = document.activeElement;
+		document.body.classList.add('menu-open');
+		drawer.setAttribute('aria-hidden', 'false');
+		openBtn.setAttribute('aria-expanded', 'true');
+		if(backdrop) backdrop.setAttribute('aria-hidden', 'false');
+		lockScroll();
+		// move focus to the first focusable element inside the drawer (close button)
+		const focusable = drawer.querySelector('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+		(focusable || drawer).focus();
+		// trap focus
+		document.addEventListener('focus', trapFocus, true);
+		document.addEventListener('keydown', onKeyDown, true);
+	}
+
+	function closeDrawer(){
+		document.body.classList.remove('menu-open');
+		drawer.setAttribute('aria-hidden', 'true');
+		openBtn.setAttribute('aria-expanded', 'false');
+		if(backdrop) backdrop.setAttribute('aria-hidden', 'true');
+		unlockScroll();
+		document.removeEventListener('focus', trapFocus, true);
+		document.removeEventListener('keydown', onKeyDown, true);
+		if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+	}
+
+	function onKeyDown(e){
+		if(e.key === 'Escape') { closeDrawer(); }
+		if(e.key === 'Tab') { maintainFocus(e); }
+	}
+
+	function trapFocus(e){
+		if(!drawer.contains(e.target) && document.body.classList.contains('menu-open')){
+			e.stopPropagation();
+			drawer.querySelector('button, [href], input, textarea, select')?.focus();
+		}
+	}
+
+	function maintainFocus(e){
+		const focusable = Array.from(drawer.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])')).filter(Boolean);
+		if(!focusable.length) return;
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if(e.shiftKey && document.activeElement === first){
+			e.preventDefault(); last.focus();
+		} else if(!e.shiftKey && document.activeElement === last){
+			e.preventDefault(); first.focus();
+		}
+	}
+
+	// open/close handlers
+	openBtn.addEventListener('click', function(){
+		if(document.body.classList.contains('menu-open')) closeDrawer(); else openDrawer();
+	});
+	if(closeBtn) closeBtn.addEventListener('click', closeDrawer);
+	if(backdrop) backdrop.addEventListener('click', closeDrawer);
+
+	// close on resize to larger viewports
+	function syncOnResize(){ if(!isSmallViewport() && document.body.classList.contains('menu-open')) closeDrawer(); }
+	window.addEventListener('resize', syncOnResize);
+	window.addEventListener('orientationchange', syncOnResize);
+
+	// Swipe-to-close on drawer (touch)
+	let startX = null; let startY = null;
+	const threshold = 40; const restraint = 120;
+	drawer.addEventListener('touchstart', function(e){ const t = e.changedTouches[0]; startX = t.pageX; startY = t.pageY; }, {passive:true});
+	drawer.addEventListener('touchend', function(e){ if(startX === null) return; const t = e.changedTouches[0]; const distX = t.pageX - startX; const distY = Math.abs(t.pageY - startY); if(distX > threshold && distY < restraint){ closeDrawer(); } startX = null; startY = null; }, {passive:true});
+
+    // Timer functionality for Central Daylight Time (CDT)
+    function updateTimer() {
+        const timerElement = document.getElementById('timer');
+        if (!timerElement) return;
+
+        // Get the current time in CDT
+        const now = new Date();
+        const options = { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: true };
+        const timeString = new Intl.DateTimeFormat('en-US', options).format(now);
+
+        // Update the timer element
+        timerElement.textContent = timeString;
+    }
+
+    // Update the timer every second
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Weather functionality using NWS API
+    const zipToLatLon = {
+        '77002': { lat: 29.752552016514958, lon: -95.37041452085252 }, // Downtown Houston
+		'77006': { lat: 29.743058828618043, lon: -95.38872535855693 }, // Midtown
+        '77380': { lat: 30.156561330335677, lon: -95.49660348630132 }, // The Woodlands
+        '77373': { lat: 30.060076989444728, lon: -95.38425991103118 }, // Spring
+        '77339': { lat: 30.044222740754748, lon: -95.21623381365497 }, // Kingwood
+        '77024': { lat: 29.785061559286614, lon: -95.55081109649475 }, // Memorial
+        '77493': { lat: 29.86892877253447, lon: -95.83598143772524 }, // Katy
+        '77584': { lat: 29.530560656795313, lon: -95.32129891012985 }, // Pearland
+        '77478': { lat: 29.619364025666467, lon: -95.60777755914671 }, // Sugar Land
+        '77502': { lat: 29.68279320790105, lon: -95.2012332550293 }, // Pasadena
+        '77520': { lat: 29.729931184106412, lon: -94.98634034561468 }, // Baytown
+        '77338': { lat: 29.936252806244546, lon: -95.22575025287787 }, // Humble
+        '77550': { lat: 29.3056910729656, lon: -94.79363293237242 }, // Galveston
+        '77571': { lat: 29.681951027430866, lon: -95.0504713333233 }, // La Porte
+        '77301': { lat: 30.372421017538844, lon: -95.45451089868827 }, // Conroe
+        '77375': { lat: 30.11186355029859, lon: -95.58409952099358 }, // Tomball
+        '77429': { lat: 30.014649608810636, lon: -95.66645508653544 }, // Cypress
+        '77459': { lat: 29.478751988175286, lon: -95.52957848248982 }, // Missouri City
+        '77477': { lat: 29.622026902031646, lon: -95.56770250882548 }, // Stafford
+        '77586': { lat: 29.583383471744852, lon: -95.0348656373267 }, // Seabrook
+        '77573': { lat: 29.495046460629094, lon: -95.09075177952913 }, // League City
+        '77336': { lat: 30.074194329781477, lon: -95.09146031763426 }, // Huffman
+        '77346': { lat: 29.998823130908438, lon: -95.17521190149226 }, // Atascocita
+        '77077': { lat: 29.748046372801, lon: -95.62195225406828 }, // Briarforest
+        '77530': { lat: 29.79477265921269, lon: -95.1119367314215 }  // Channelview
+    };
+
+    async function fetchWeatherNWS(lat, lon) {
+        const url = `https://api.weather.gov/points/${lat},${lon}`;
+        try {
+            // Fetch the forecast URL from the NWS API
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to fetch weather for ${lat},${lon}: ${response.statusText}`);
+            const data = await response.json();
+
+            // Use the hourly forecast URL to get the actual weather data
+            const hourlyForecastUrl = data.properties.forecastHourly;
+            const hourlyResponse = await fetch(hourlyForecastUrl);
+            if (!hourlyResponse.ok) throw new Error(`Failed to fetch hourly forecast: ${hourlyResponse.statusText}`);
+            const hourlyData = await hourlyResponse.json();
+
+            // Get the current hour's temperature
+            const now = new Date();
+            const currentHour = hourlyData.properties.periods.find(period => {
+                const startTime = new Date(period.startTime);
+                const endTime = new Date(period.endTime);
+                return now >= startTime && now <= endTime;
+            });
+
+            if (currentHour) {
+                return currentHour.temperature; // Temperature in Fahrenheit
+            } else {
+                throw new Error('No hourly forecast data available for the current time.');
+            }
+        } catch (error) {
+            console.error(`Error fetching weather for ${lat},${lon}:`, error);
+            return null;
+        }
+    }
+
+    async function updateWeather() {
+        for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
+            const temp = await fetchWeatherNWS(lat, lon);
+            const weatherElement = document.getElementById(zip);
+			if (weatherElement && temp !== null) {
+				weatherElement.textContent = `${temp}°F`;
+				// apply temperature color class
+				applyTempClass(weatherElement, temp);
+			}
+        }
+    }
+
+	// helper: apply a temp-based class to the target h2 element
+	function applyTempClass(el, temp){
+		if(!el) return;
+		// remove any existing temp- classes
+		el.classList.remove('temp-90','temp-80','temp-70','temp-60','temp-50','temp-40','temp-30','temp-29');
+		const t = Number(temp);
+		if(Number.isNaN(t)) return;
+		if(t >= 90) el.classList.add('temp-90');
+		else if(t >= 80) el.classList.add('temp-80');
+		else if(t >= 70) el.classList.add('temp-70');
+		else if(t >= 60) el.classList.add('temp-60');
+		else if(t >= 50) el.classList.add('temp-50');
+		else if(t >= 40) el.classList.add('temp-40');
+		else if(t >= 30) el.classList.add('temp-30');
+		else el.classList.add('temp-29');
+	}
+    // Fetch and update weather data
+    updateWeather();
+
+})();
+
+// Client-side posts rendering: fetch from serverless API and populate hero + story cards
+(function(){
+	const HERO_CHAR_LIMIT = 168; // hero paragraph truncate (changed per request)
+	const STORY_CHAR_LIMIT = 140; // story-card paragraph truncate
+
+	function truncate(str, n){
+		if(!str) return '';
+		return str.length > n ? str.slice(0,n).trim().replace(/\s+$/,'') + '…' : str;
+	}
+
+	function timeAgo(iso){
+		if(!iso) return '';
+		const then = new Date(iso);
+		const now = new Date();
+		const diffMs = now - then;
+		const diffMins = Math.floor(diffMs / 60000);
+		if(diffMins < 1) return 'just now';
+		if(diffMins < 60) return `${diffMins}m ago`;
+		const diffHours = Math.floor(diffMins / 60);
+		return `${diffHours}h ago`;
+	}
+
+			// Pagination state
+			let currentPage = 1;
+			const perPage = 6; // 3x2 grid
+			let totalItems = 0;
+
+			function setPager(page, total){
+				totalItems = typeof total === 'number' ? total : 0;
+				const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+				const left = document.querySelector('.page-indexer .arrow.left');
+				const right = document.querySelector('.page-indexer .arrow.right');
+				const pageNum = document.querySelector('.page-indexer .page-number');
+				if(pageNum) pageNum.textContent = `Page ${page}`;
+				if(left) left.disabled = page <= 1;
+				if(right) right.disabled = page >= totalPages;
+			}
+
+			async function loadHero(){
+				try{
+					const r = await fetch('/api/posts?hero=1');
+					if(!r.ok) throw new Error('hero fetch failed');
+					const data = await r.json();
+					const hero = data && data.post ? data.post : null;
+					const heroEl = document.querySelector('.hero');
+					if(!heroEl) return;
+					heroEl.innerHTML = '';
+					if(!hero){ heroEl.textContent = 'No posts available'; return; }
+					const heroImg = document.createElement('img'); heroImg.src = hero.url || ''; heroImg.alt = hero.title || '';
+					const h1 = document.createElement('h1'); h1.textContent = hero.title || '';
+					const p = document.createElement('p'); p.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
+					const h4 = document.createElement('h4'); h4.textContent = timeAgo(hero.scrapedAt || null);
+					heroEl.appendChild(heroImg); heroEl.appendChild(h1); heroEl.appendChild(p); heroEl.appendChild(h4);
+				}catch(err){ console.error('loadHero error', err); }
+			}
+
+			async function loadPage(page){
+				try{
+					const r = await fetch(`/api/posts?page=${page}&perPage=${perPage}`);
+					if(!r.ok) throw new Error('page fetch failed');
+					const data = await r.json();
+					const posts = data.posts || [];
+					const total = typeof data.total === 'number' ? data.total : 0;
+					const listEl = document.querySelector('.recent-post-tier');
+					if(!listEl) return;
+					listEl.innerHTML = '';
+					// render received posts
+					for(const post of posts){
+						const card = document.createElement('div'); card.className = 'story-card';
+						const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
+						const title = document.createElement('h1'); title.textContent = post.title || '';
+						const body = document.createElement('p'); body.textContent = truncate(post.body || '', STORY_CHAR_LIMIT);
+						card.appendChild(img); card.appendChild(title); card.appendChild(body);
+						listEl.appendChild(card);
+					}
+					// add placeholders to keep 3x2 grid layout if fewer than perPage
+					const received = posts.length;
+					for(let i=0;i<perPage-received;i++){
+						const ph = document.createElement('div'); ph.className = 'story-card placeholder'; ph.setAttribute('aria-hidden','true');
+						ph.style.visibility = 'hidden'; ph.style.height = '1px'; listEl.appendChild(ph);
+					}
+					setPager(page, total);
+				}catch(err){ console.error('loadPage error', err); }
+			}
+
+			// wire pager controls
+			document.addEventListener('click', function(e){
+				if(e.target.matches('.page-indexer .arrow.left')){
+					if(currentPage>1){ currentPage--; loadPage(currentPage); }
+					return;
+				}
+				if(e.target.matches('.page-indexer .arrow.right')){
+					const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+					if(currentPage < totalPages){ currentPage++; loadPage(currentPage); }
+					return;
+				}
+			});
+
+			async function loadPosts(){
+				await loadHero();
+				await loadPage(currentPage);
+			}
+
+	// Load posts on DOMContentLoaded
+	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadPosts); else loadPosts();
+})();
+
+</script>
+<script>
+// Final article loader: fetch post by title from querystring and populate the page (hero image, title, date, body)
+(function(){
+	function getTitleFromQS(){
+		try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
+	}
+
+	function formatDate(iso){
+		if(!iso) return '';
+		const d = new Date(iso);
+		return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+	}
+
+	function bodyToHtml(text){
+		if(!text) return '';
+		return text.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br/>')}</p>`).join('\n');
+	}
+
+	async function load(){
+		const title = getTitleFromQS();
+		if(!title) return;
+		try{
+			const res = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
+			if(!res.ok) return; // not found or error
+			const json = await res.json();
+			const post = json && json.post ? json.post : null;
+			if(!post) return;
+			// replace hero content with only the article image
+			const heroEl = document.querySelector('.hero');
+			if(heroEl){
+				heroEl.innerHTML = '';
+				const img = document.createElement('img');
+				img.src = post.url || '';
+				img.alt = post.title || '';
+				heroEl.appendChild(img);
+			}
+			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
+			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
+			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
+		}catch(err){ console.error('article load error', err); }
+	}
+
+	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();
+})();
+</script>
+</body>
+</html>
