@@ -5,6 +5,7 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 	<title>Hourly Houston</title>
 	<meta name="description" content="Get updated content for Houston Hourly!">
 	<meta name="author" content="Hourly Houston">
@@ -315,42 +316,81 @@
             if (!response.ok) throw new Error(`Failed to fetch weather for ${lat},${lon}: ${response.statusText}`);
             const data = await response.json();
 
-            // Use the hourly forecast URL to get the actual weather data
-            const hourlyForecastUrl = data.properties.forecastHourly;
-            const hourlyResponse = await fetch(hourlyForecastUrl);
-            if (!hourlyResponse.ok) throw new Error(`Failed to fetch hourly forecast: ${hourlyResponse.statusText}`);
-            const hourlyData = await hourlyResponse.json();
+			// Use the hourly forecast URL to get the actual weather data
+			const hourlyForecastUrl = data.properties.forecastHourly;
+			const hourlyResponse = await fetch(hourlyForecastUrl);
+			if (!hourlyResponse.ok) throw new Error(`Failed to fetch hourly forecast: ${hourlyResponse.statusText}`);
+			const hourlyData = await hourlyResponse.json();
 
-            // Get the current hour's temperature
-            const now = new Date();
-            const currentHour = hourlyData.properties.periods.find(period => {
-                const startTime = new Date(period.startTime);
-                const endTime = new Date(period.endTime);
-                return now >= startTime && now <= endTime;
-            });
+			// Get the current hour's temperature and short forecast
+			const now = new Date();
+			const currentHour = hourlyData.properties.periods.find(period => {
+				const startTime = new Date(period.startTime);
+				const endTime = new Date(period.endTime);
+				return now >= startTime && now <= endTime;
+			});
 
-            if (currentHour) {
-                return currentHour.temperature; // Temperature in Fahrenheit
-            } else {
-                throw new Error('No hourly forecast data available for the current time.');
-            }
+			if (currentHour) {
+				return { temperature: currentHour.temperature, shortForecast: currentHour.shortForecast };
+			} else {
+				throw new Error('No hourly forecast data available for the current time.');
+			}
         } catch (error) {
             console.error(`Error fetching weather for ${lat},${lon}:`, error);
             return null;
         }
     }
 
-    async function updateWeather() {
-        for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
-            const temp = await fetchWeatherNWS(lat, lon);
-            const weatherElement = document.getElementById(zip);
-			if (weatherElement && temp !== null) {
+	async function updateWeather() {
+		for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
+			const result = await fetchWeatherNWS(lat, lon);
+			const weatherElement = document.getElementById(zip);
+			if (weatherElement && result !== null) {
+				const temp = result.temperature;
+				const cond = result.shortForecast || '';
 				weatherElement.textContent = `${temp}°F`;
 				// apply temperature color class
 				applyTempClass(weatherElement, temp);
+				// add icon to the right and color it
+				applyWeatherIcon(weatherElement, cond);
 			}
-        }
-    }
+		}
+	}
+
+	// helper: pick an icon class from FontAwesome based on NWS shortForecast
+	function pickIconClassForCondition(cond){
+		if(!cond) return 'fa-solid fa-sun';
+		const c = cond.toLowerCase();
+		if(c.includes('thunder') || c.includes('storm') || c.includes('tstm')) return 'fa-solid fa-bolt';
+		if(c.includes('rain') || c.includes('showers')) return 'fa-solid fa-cloud-showers-heavy';
+		if(c.includes('snow') || c.includes('sleet') || c.includes('flurr')) return 'fa-solid fa-snowflake';
+		if(c.includes('tornado')) return 'fa-solid fa-tornado';
+		if(c.includes('hurricane') || c.includes('tropical')) return 'fa-solid fa-hurricane';
+		if(c.includes('cloud') || c.includes('overcast')) return 'fa-solid fa-cloud';
+		if(c.includes('wind') || c.includes('breezy')) return 'fa-solid fa-wind';
+		if(c.includes('sun') || c.includes('clear')) return 'fa-solid fa-sun';
+		// default to sun for miscellaneous Houston-friendly events
+		return 'fa-solid fa-sun';
+	}
+
+	// helper: append or update an icon inside the h2 element, color is inherited via CSS class
+	function applyWeatherIcon(h2el, cond){
+		if(!h2el) return;
+		// remove existing icon if present
+		let icon = h2el.querySelector('i.weather-icon');
+		if(!icon){
+			icon = document.createElement('i');
+			icon.className = 'weather-icon';
+			icon.setAttribute('aria-hidden', 'true');
+			// place to the right using margin-left
+			icon.style.marginLeft = '8px';
+			h2el.appendChild(icon);
+		}
+		const cls = pickIconClassForCondition(cond);
+		icon.className = cls + ' weather-icon';
+		// ensure the icon matches the text color by relying on currentColor
+		icon.style.color = 'currentColor';
+	}
 
 	// helper: apply a temp-based class to the target h2 element
 	function applyTempClass(el, temp){
