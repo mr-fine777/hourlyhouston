@@ -344,12 +344,30 @@
         for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
             const temp = await fetchWeatherNWS(lat, lon);
             const weatherElement = document.getElementById(zip);
-            if (weatherElement && temp !== null) {
-                weatherElement.textContent = `${temp}°F`;
-            }
+			if (weatherElement && temp !== null) {
+				weatherElement.textContent = `${temp}°F`;
+				// apply temperature color class
+				applyTempClass(weatherElement, temp);
+			}
         }
     }
 
+	// helper: apply a temp-based class to the target h2 element
+	function applyTempClass(el, temp){
+		if(!el) return;
+		// remove any existing temp- classes
+		el.classList.remove('temp-90','temp-80','temp-70','temp-60','temp-50','temp-40','temp-30','temp-29');
+		const t = Number(temp);
+		if(Number.isNaN(t)) return;
+		if(t >= 90) el.classList.add('temp-90');
+		else if(t >= 80) el.classList.add('temp-80');
+		else if(t >= 70) el.classList.add('temp-70');
+		else if(t >= 60) el.classList.add('temp-60');
+		else if(t >= 50) el.classList.add('temp-50');
+		else if(t >= 40) el.classList.add('temp-40');
+		else if(t >= 30) el.classList.add('temp-30');
+		else el.classList.add('temp-29');
+	}
     // Fetch and update weather data
     updateWeather();
 
