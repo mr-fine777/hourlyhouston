@@ -41,6 +41,22 @@ export default async function handler(req, res) {
     // count total documents
     const totalDocs = await col.countDocuments();
 
+    // If ?title=... return the document matching that title (used by article page)
+    if (req.query && req.query.title) {
+      const titleQuery = req.query.title;
+      const doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+      const out = doc ? {
+        _id: doc._id,
+        title: doc.title || '',
+        url: doc.url || '',
+        body: doc.body || '',
+        scrapedAt: doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : null,
+      } : null;
+      res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
+      if (!out) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json({ post: out });
+    }
+
     // If ?hero=1 return only the most recent document
     if(req.query && req.query.hero === '1'){
       const heroDoc = await col.find({}, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } }).sort({ scrapedAt: -1 }).limit(1).toArray();
