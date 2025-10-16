@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Search - Hourly Houston</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header class="site-header">
+	<div class="header-left">
+		<a href="/" class="home-link">
+			<img src="img/icoW.png" alt="Hourly Houston logo" class="logo">
+			<h2 class="site-title">Hourly Houston</h2>
+		</a>
+	</div>
+	<div class="header-right">
+		<form class="search-form" action="/search.html" method="get" role="search">
+		  <label for="q" class="visually-hidden">Search articles</label>
+		  <input id="q" name="q" type="search" placeholder="Search articles" aria-label="Search articles">
+		  <button type="submit" aria-label="Submit search">🔎</button>
+		</form>
+	</div>
+</header>
+
+<div class="hero-container">
+  <div class="hero-body">
+    <div class="hero" style="height:auto; min-height:160px;">
+      <h1 style="padding:18px;">Search results</h1>
+    </div>
+
+    <div class="search-results" id="results"></div>
+
+    <div class="page-holding" id="search-footer" style="margin-top:auto;">
+      <div style="padding:8px; text-align:center; color:#fff;">Search powered locally. Use clear terms.</div>
+    </div>
+  </div>
+
+  <div class="hero-side">
+    <!-- reuse the sidebar content to keep consistency -->
+  </div>
+</div>
+
+<script>
+// Client-side search page: reads ?q=, fetches /api/posts (all) and filters by title or body
+(function(){
+  function qsParam(name){
+    try{ const s = new URLSearchParams(location.search); return s.get(name) || ''; }catch(e){ return ''; }
+  }
+
+  function firstParagraph(text){
+    if(!text) return '';
+    const parts = text.split(/\n\n+/);
+    return parts.length ? parts[0].replace(/\n/g, ' ') : text;
+  }
+
+  function formatDate(iso){
+    if(!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleString();
+  }
+
+  async function fetchAllPosts(){
+    // request a large perPage to get a lot of posts; API returns hero separate so request a high number
+    const res = await fetch('/api/posts?page=1&perPage=1000');
+    if(!res.ok) throw new Error('fetch failed');
+    const json = await res.json();
+    // api returns { posts, total } and hero is excluded server-side; also fetch hero to include it
+    const heroRes = await fetch('/api/posts?hero=1');
+    const heroJson = heroRes.ok ? await heroRes.json() : null;
+    const hero = heroJson && heroJson.post ? heroJson.post : null;
+    const posts = Array.isArray(json.posts) ? json.posts.slice() : [];
+    if(hero){ posts.unshift(hero); }
+    return posts;
+  }
+
+  function renderResults(list, container){
+    container.innerHTML = '';
+    if(!list.length){ container.innerHTML = '<div style="padding:20px;">No matching articles found.</div>'; return; }
+    for(const post of list){
+      const row = document.createElement('div'); row.className = 'search-row';
+      const imgWrap = document.createElement('div');
+      const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
+      imgWrap.appendChild(img);
+
+      const mid = document.createElement('div');
+      const t = document.createElement('div'); t.className = 'row-title'; t.textContent = post.title || '';
+      const ex = document.createElement('div'); ex.className = 'row-excerpt'; ex.textContent = firstParagraph(post.body || '');
+      mid.appendChild(t); mid.appendChild(ex);
+
+      const right = document.createElement('div'); right.className = 'meta-date'; right.textContent = formatDate(post.scrapedAt || '');
+
+      // make whole row clickable
+      row.addEventListener('click', function(){ location.href = '/article.html?' + encodeURIComponent(post.title || ''); });
+      row.appendChild(imgWrap); row.appendChild(mid); row.appendChild(right);
+      container.appendChild(row);
+    }
+  }
+
+  async function run(){
+    const q = (qsParam('q') || '').trim();
+    const input = document.getElementById('q'); if(input) input.value = q;
+    const resultsEl = document.getElementById('results');
+    try{
+      const all = await fetchAllPosts();
+      if(!q){ renderResults(all, resultsEl); return; }
+      const k = q.toLowerCase();
+      const filtered = all.filter(p => {
+        const t = (p.title||'').toLowerCase();
+        const b = (p.body||'').toLowerCase();
+        return t.includes(k) || b.includes(k);
+      });
+      renderResults(filtered, resultsEl);
+    }catch(err){ console.error('search error', err); resultsEl.innerHTML = '<div style="padding:20px;">Error loading results.</div>'; }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+</script>
+</body>
+</html>
