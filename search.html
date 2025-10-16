@@ -26,19 +26,122 @@
 
 <div class="hero-container">
   <div class="hero-body">
-    <div class="hero" style="height:auto; min-height:160px;">
+    <div class="hero" tabindex="-1" aria-live="polite">
+      <img src="https://m.media-amazon.com/images/I/71qWfXW6tbL.jpg" alt="Houston skyline">
       <h1 style="padding:18px;">Search results</h1>
     </div>
 
     <div class="search-results" id="results"></div>
 
-    <div class="page-holding" id="search-footer" style="margin-top:auto;">
-      <div style="padding:8px; text-align:center; color:#fff;">Search powered locally. Use clear terms.</div>
-    </div>
+    <div class="page-holding" id="search-footer" style="margin-top:auto;"></div>
   </div>
 
-  <div class="hero-side">
-    <!-- reuse the sidebar content to keep consistency -->
+  <div class="hero-side" id="drawer" role="dialog" aria-modal="true" aria-hidden="true">
+    <button class="drawer-close" aria-label="Close menu">×</button>
+  <h2 id="timer" style="font-size: 32px; text-align: center; color: white;">00:00xm</h2>
+    <div class="weather-card">
+  <h1>Downtown Houston</h1>
+  <h2 id="77002"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Midtown</h1>
+  <h2 id="77006"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>The Woodlands</h1>
+  <h2 id="77380"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Spring</h1>
+  <h2 id="77373"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Kingwood</h1>
+  <h2 id="77339"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Memorial</h1>
+  <h2 id="77024"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Katy</h1>
+  <h2 id="77493"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Pearland</h1>
+  <h2 id="77584"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Sugar Land</h1>
+  <h2 id="77478"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Pasadena</h1>
+  <h2 id="77502"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Baytown</h1>
+  <h2 id="77520"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Humble</h1>
+  <h2 id="77338"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Galveston</h1>
+  <h2 id="77550"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>La Porte</h1>
+  <h2 id="77571"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Conroe</h1>
+  <h2 id="77301"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Tomball</h1>
+  <h2 id="77375"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Cypress</h1>
+  <h2 id="77429"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Missouri City</h1>
+  <h2 id="77459"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Stafford</h1>
+  <h2 id="77477"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Seabrook</h1>
+  <h2 id="77586"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>League City</h1>
+  <h2 id="77573"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Huffman</h1>
+  <h2 id="77336"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Atascocita</h1>
+  <h2 id="77346"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Briarforest</h1>
+  <h2 id="77077"></h2>
+  </div>
+  <div class="weather-card">
+  <h1>Channelview</h1>
+  <h2 id="77530"></h2>
+  </div>
+  <div class="side-ad-card">
+  
+  </div>
   </div>
 </div>
 
@@ -116,6 +219,167 @@
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+</script>
+<script>
+// Drawer behavior, timer, and weather functionality (copied from index/article pages)
+(function(){
+  // Timer
+  function updateTimer() {
+    const timerElement = document.getElementById('timer');
+    if (!timerElement) return;
+    const now = new Date();
+    const options = { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: true };
+    const timeString = new Intl.DateTimeFormat('en-US', options).format(now);
+    timerElement.textContent = timeString;
+  }
+  setInterval(updateTimer, 1000);
+  updateTimer();
+
+  // Zip to lat/lon map
+  const zipToLatLon = {
+    '77002': { lat: 29.752552016514958, lon: -95.37041452085252 },
+    '77006': { lat: 29.743058828618043, lon: -95.38872535855693 },
+    '77380': { lat: 30.156561330335677, lon: -95.49660348630132 },
+    '77373': { lat: 30.060076989444728, lon: -95.38425991103118 },
+    '77339': { lat: 30.044222740754748, lon: -95.21623381365497 },
+    '77024': { lat: 29.785061559286614, lon: -95.55081109649475 },
+    '77493': { lat: 29.86892877253447, lon: -95.83598143772524 },
+    '77584': { lat: 29.530560656795313, lon: -95.32129891012985 },
+    '77478': { lat: 29.619364025666467, lon: -95.60777755914671 },
+    '77502': { lat: 29.68279320790105, lon: -95.2012332550293 },
+    '77520': { lat: 29.729931184106412, lon: -94.98634034561468 },
+    '77338': { lat: 29.936252806244546, lon: -95.22575025287787 },
+    '77550': { lat: 29.3056910729656, lon: -94.79363293237242 },
+    '77571': { lat: 29.681951027430866, lon: -95.0504713333233 },
+    '77301': { lat: 30.372421017538844, lon: -95.45451089868827 },
+    '77375': { lat: 30.11186355029859, lon: -95.58409952099358 },
+    '77429': { lat: 30.014649608810636, lon: -95.66645508653544 },
+    '77459': { lat: 29.478751988175286, lon: -95.52957848248982 },
+    '77477': { lat: 29.622026902031646, lon: -95.56770250882548 },
+    '77586': { lat: 29.583383471744852, lon: -95.0348656373267 },
+    '77573': { lat: 29.495046460629094, lon: -95.09075177952913 },
+    '77336': { lat: 30.074194329781477, lon: -95.09146031763426 },
+    '77346': { lat: 29.998823130908438, lon: -95.17521190149226 },
+    '77077': { lat: 29.748046372801, lon: -95.62195225406828 },
+    '77530': { lat: 29.79477265921269, lon: -95.1119367314215 }
+  };
+
+  async function fetchWeatherNWS(lat, lon) {
+    const url = `https://api.weather.gov/points/${lat},${lon}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch weather for ${lat},${lon}: ${response.statusText}`);
+      const data = await response.json();
+      const hourlyForecastUrl = data.properties.forecastHourly;
+      const hourlyResponse = await fetch(hourlyForecastUrl);
+      if (!hourlyResponse.ok) throw new Error(`Failed to fetch hourly forecast: ${hourlyResponse.statusText}`);
+      const hourlyData = await hourlyResponse.json();
+      const now = new Date();
+      const currentHour = hourlyData.properties.periods.find(period => {
+        const startTime = new Date(period.startTime);
+        const endTime = new Date(period.endTime);
+        return now >= startTime && now <= endTime;
+      });
+      if (currentHour) {
+        return { temperature: currentHour.temperature, shortForecast: currentHour.shortForecast };
+      } else {
+        throw new Error('No hourly forecast data available for the current time.');
+      }
+    } catch (error) {
+      console.error(`Error fetching weather for ${lat},${lon}:`, error);
+      return null;
+    }
+  }
+
+  function pickIconClassForCondition(cond){
+    if(!cond) return 'fa-solid fa-sun';
+    const c = cond.toLowerCase();
+    if(c.includes('thunder') || c.includes('storm') || c.includes('tstm')) return 'fa-solid fa-bolt';
+    if(c.includes('rain') || c.includes('showers')) return 'fa-solid fa-cloud-showers-heavy';
+    if(c.includes('snow') || c.includes('sleet') || c.includes('flurr')) return 'fa-solid fa-snowflake';
+    if(c.includes('tornado')) return 'fa-solid fa-tornado';
+    if(c.includes('hurricane') || c.includes('tropical')) return 'fa-solid fa-hurricane';
+    if(c.includes('cloud') || c.includes('overcast')) return 'fa-solid fa-cloud';
+    if(c.includes('wind') || c.includes('breezy')) return 'fa-solid fa-wind';
+    if(c.includes('sun') || c.includes('clear')) return 'fa-solid fa-sun';
+    return 'fa-solid fa-sun';
+  }
+
+  function applyWeatherIcon(h2el, cond){
+    if(!h2el) return;
+    let icon = h2el.querySelector('i.weather-icon');
+    if(!icon){
+      icon = document.createElement('i');
+      icon.className = 'weather-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.style.marginLeft = '8px';
+      h2el.appendChild(icon);
+    }
+    const cls = pickIconClassForCondition(cond);
+    icon.className = cls + ' weather-icon';
+    icon.style.color = 'currentColor';
+  }
+
+  function applyTempClass(el, temp){
+    if(!el) return;
+    el.classList.remove('temp-90','temp-80','temp-70','temp-60','temp-50','temp-40','temp-30','temp-29');
+    const t = Number(temp);
+    if(Number.isNaN(t)) return;
+    if(t >= 90) el.classList.add('temp-90');
+    else if(t >= 80) el.classList.add('temp-80');
+    else if(t >= 70) el.classList.add('temp-70');
+    else if(t >= 60) el.classList.add('temp-60');
+    else if(t >= 50) el.classList.add('temp-50');
+    else if(t >= 40) el.classList.add('temp-40');
+    else if(t >= 30) el.classList.add('temp-30');
+    else el.classList.add('temp-29');
+  }
+
+  async function updateWeather(){
+    for (const [zip, { lat, lon }] of Object.entries(zipToLatLon)) {
+      const result = await fetchWeatherNWS(lat, lon);
+      const weatherElement = document.getElementById(zip);
+      if (weatherElement && result !== null) {
+        const temp = result.temperature;
+        const cond = result.shortForecast || '';
+        weatherElement.textContent = `${temp}°F`;
+        applyTempClass(weatherElement, temp);
+        applyWeatherIcon(weatherElement, cond);
+      }
+    }
+  }
+
+  // Drawer open/close handling (basic: mirror index.html behavior)
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.querySelector('.backdrop');
+  const openBtn = document.querySelector('.hamburger');
+  const closeBtn = document.querySelector('.drawer-close');
+  if(drawer && openBtn){
+    let lastFocused = null;
+    function isSmallViewport(){ return window.matchMedia && window.matchMedia('(max-width: 520px)').matches; }
+    function lockScroll(){ if(!isSmallViewport()) return; const scrollY = window.scrollY || document.documentElement.scrollTop || 0; document.body.dataset.scrollY = String(scrollY); document.body.style.position = 'fixed'; document.body.style.top = `-${scrollY}px`; document.body.style.left = '0'; document.body.style.right = '0'; document.body.style.width = '100%'; document.body.classList.add('no-scroll'); }
+    function unlockScroll(){ const prev = document.body.dataset.scrollY ? parseInt(document.body.dataset.scrollY, 10) : 0; document.body.style.position = ''; document.body.style.top = ''; document.body.style.left = ''; document.body.style.right = ''; document.body.style.width = ''; delete document.body.dataset.scrollY; document.body.classList.remove('no-scroll'); window.scrollTo(0, prev); }
+    function openDrawer(){ lastFocused = document.activeElement; document.body.classList.add('menu-open'); drawer.setAttribute('aria-hidden', 'false'); openBtn.setAttribute('aria-expanded', 'true'); if(backdrop) backdrop.setAttribute('aria-hidden', 'false'); lockScroll(); const focusable = drawer.querySelector('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])'); (focusable || drawer).focus(); document.addEventListener('focus', trapFocus, true); document.addEventListener('keydown', onKeyDown, true); }
+    function closeDrawer(){ document.body.classList.remove('menu-open'); drawer.setAttribute('aria-hidden', 'true'); openBtn.setAttribute('aria-expanded', 'false'); if(backdrop) backdrop.setAttribute('aria-hidden', 'true'); unlockScroll(); document.removeEventListener('focus', trapFocus, true); document.removeEventListener('keydown', onKeyDown, true); if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus(); }
+    function onKeyDown(e){ if(e.key === 'Escape') { closeDrawer(); } if(e.key === 'Tab') { maintainFocus(e); } }
+    function trapFocus(e){ if(!drawer.contains(e.target) && document.body.classList.contains('menu-open')){ e.stopPropagation(); drawer.querySelector('button, [href], input, textarea, select')?.focus(); } }
+    function maintainFocus(e){ const focusable = Array.from(drawer.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])')).filter(Boolean); if(!focusable.length) return; const first = focusable[0]; const last = focusable[focusable.length - 1]; if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } }
+    openBtn.addEventListener('click', function(){ if(document.body.classList.contains('menu-open')) closeDrawer(); else openDrawer(); });
+    if(closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if(backdrop) backdrop.addEventListener('click', closeDrawer);
+    function syncOnResize(){ if(!isSmallViewport() && document.body.classList.contains('menu-open')) closeDrawer(); }
+    window.addEventListener('resize', syncOnResize);
+    window.addEventListener('orientationchange', syncOnResize);
+    // touch swipe-to-close
+    let startX = null; let startY = null; const threshold = 40; const restraint = 120;
+    drawer.addEventListener('touchstart', function(e){ const t = e.changedTouches[0]; startX = t.pageX; startY = t.pageY; }, {passive:true});
+    drawer.addEventListener('touchend', function(e){ if(startX === null) return; const t = e.changedTouches[0]; const distX = t.pageX - startX; const distY = Math.abs(t.pageY - startY); if(distX > threshold && distY < restraint){ closeDrawer(); } startX = null; startY = null; }, {passive:true});
+  }
+
+  // Start weather updates
+  updateWeather();
+
 })();
 </script>
 </body>
