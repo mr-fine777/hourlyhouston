@@ -227,7 +227,7 @@ body {
 /* Tweak typography for small screens */
 @media (max-width: 420px) {
   .site-title { font-size: 1rem; }
-  .hero h1 { font-size: 1.25rem; bottom: 160px; left: 16px; margin-bottom: 20px; }
+  .hero h1 { font-size: 1.25rem; bottom: 90px; left: 16px; margin-bottom: 20px; }
   .hero p { font-size: 1rem; left: 16px; }
 }
 
@@ -677,3 +677,59 @@ body.menu-open .site-header { pointer-events: auto; }
   font-size: 1.2rem;
   margin-bottom: 20px;
 }
+
+/* Search form in header (desktop only) */
+.search-form{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.search-form input[type="search"]{
+  width: 220px;
+  height: 40px;
+  border-radius: 8px;
+  border: 0;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+.search-form button{
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 0;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  cursor: pointer;
+}
+
+/* hide search on small screens where the drawer is the main UI */
+@media (max-width: 520px){
+  .search-form{ display: none; }
+}
+
+/* Search results row layout used on search.html */
+.search-results { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.search-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 140px; /* image | content | date */
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.search-row img{ width: 140px; height: 100px; object-fit: cover; border-radius: 6px; }
+.search-row .meta-date{ text-align: right; font-size: 0.9rem; color: #666; }
+.search-row .row-title{ font-size: 1.05rem; margin-bottom: 6px; color: #111; }
+.search-row .row-excerpt{ color: #444; font-size: 0.95rem; line-height: 1.3; }
+
+@media (max-width: 720px){
+  .search-row{ grid-template-columns: 1fr; }
+  .search-row img{ width: 100%; height: 180px; }
+  .search-row .meta-date{ text-align: left; }
+}
+
+/* small helper to visually hide labels while keeping them accessible */
+.visually-hidden{ position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
