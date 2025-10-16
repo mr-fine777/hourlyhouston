@@ -7,7 +7,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-	<title id="page-title">Hourly Houston</title>
+    <title id="page-title">Hourly Houston</title>
     <!-- SEO/meta placeholders (will be populated dynamically when the article loads) -->
     <meta id="meta-desc" name="description" content="Hourly Houston article">
     <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
@@ -33,11 +33,6 @@
 	<meta charset="UTF-8">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
-	<style>
-	/* lightweight local styles so article page's story-image mirrors hero behavior visually */
-	.story-image { display:block; width:100%; max-width:100%; overflow:hidden; position:relative; }
-	.story-image img{ display:block; width:100%; height:auto; object-fit:cover; border-radius:8px; }
-	</style>
 </head>
 <body>
 	<!-- Mobile menu toggle: button-driven accessible drawer (replaces checkbox pattern) -->
@@ -62,7 +57,7 @@
 <div class="hero-container">
 <div class="hero-body">
 		
-		<div class="story-image" tabindex="-1" aria-live="polite"></div>
+		<div class="hero" tabindex="-1" aria-live="polite"></div>
 		
 	<div class="article-section">
 	<h1 id="title">Article Title</h1>
@@ -474,7 +469,7 @@
 					if(!r.ok) throw new Error('hero fetch failed');
 					const data = await r.json();
 					const hero = data && data.post ? data.post : null;
-					const heroEl = document.querySelector('.story-image');
+					const heroEl = document.querySelector('.hero');
 					if(!heroEl) return;
 					heroEl.innerHTML = '';
 					if(!hero){ heroEl.textContent = 'No posts available'; return; }
@@ -631,9 +626,9 @@
 				});
 			})();
 
-			// Helper: if the image container gets replaced by another page (race), offer a toggle so user can restore the article image
+			// Helper: if the hero gets replaced by another page (race), offer a toggle so user can restore the article image
 			(function ensureHeroToggle(){
-				const hero = document.querySelector('.story-image');
+				const hero = document.querySelector('.hero');
 				if(!hero) return;
 				// create toggle button (once)
 				let toggle = document.getElementById('hero-toggle-btn');
@@ -680,9 +675,9 @@
 				obs.observe(hero, { childList: true, subtree: true });
 			})();
 
-			// If image container contains a link (most-recent article preview), make clicking it follow the link
+			// If hero contains a link (most-recent article preview), make clicking the hero follow it
 			(function makeHeroClickable(){
-				const hero = document.querySelector('.story-image');
+				const hero = document.querySelector('.hero');
 				if(!hero) return;
 				hero.addEventListener('click', function(e){
 					// don't intercept clicks on the toggle or inject slots
