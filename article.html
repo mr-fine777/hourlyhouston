@@ -13,6 +13,12 @@
     <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
     <meta id="meta-ogdesc" property="og:description" content="Hourly Houston article">
     <meta id="meta-ogimage" property="og:image" content="">
+	<meta id="meta-ogurl" property="og:url" content="https://hourlyhouston.vercel.app/">
+	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
+	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
+	<meta id="meta-twitter-desc" name="twitter:description" content="Hourly Houston article">
+	<meta id="meta-twitter-image" name="twitter:image" content="">
+	<meta id="meta-name-title" name="title" content="Hourly Houston">
     <meta id="meta-twitter" name="twitter:card" content="summary_large_image">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
@@ -575,11 +581,26 @@
 			// Populate SEO/meta tags so shared links show useful preview
 			try{
 				const firstPara = (post.body||'').split(/\n\n+/)[0] || '';
-				document.getElementById('page-title').textContent = post.title || 'Hourly Houston';
-				document.getElementById('meta-desc').setAttribute('content', firstPara.replace(/\n/g,' '));
-				document.getElementById('meta-ogtitle').setAttribute('content', post.title || 'Hourly Houston');
-				document.getElementById('meta-ogdesc').setAttribute('content', firstPara.replace(/\n/g,' '));
-				document.getElementById('meta-ogimage').setAttribute('content', post.url || '');
+				// set document title and meta tags for social previews
+				const pageTitle = `Hourly Houston - ${post.title || ''}`.trim();
+				document.getElementById('page-title').textContent = pageTitle;
+				// standard description
+				const desc = firstPara.replace(/\n/g,' ');
+				const img = post.url || '';
+				const title = post.title || 'Hourly Houston';
+				document.getElementById('meta-desc').setAttribute('content', desc);
+				// Open Graph
+				document.getElementById('meta-ogtitle').setAttribute('content', title);
+				document.getElementById('meta-ogdesc').setAttribute('content', desc);
+				document.getElementById('meta-ogimage').setAttribute('content', img);
+				document.getElementById('meta-ogurl').setAttribute('content', location.href);
+				document.getElementById('meta-ogsite').setAttribute('content', 'Hourly Houston');
+				// Twitter
+				document.getElementById('meta-twitter-title').setAttribute('content', title);
+				document.getElementById('meta-twitter-desc').setAttribute('content', desc);
+				document.getElementById('meta-twitter-image').setAttribute('content', img);
+				// fallback meta name=title
+				document.getElementById('meta-name-title').setAttribute('content', pageTitle);
 			}catch(e){/* ignore if DOM meta nodes missing */}
 
 			// After inserting the article body, run any inject templates found in the head
@@ -652,6 +673,23 @@
 					}
 				});
 				obs.observe(hero, { childList: true, subtree: true });
+			})();
+
+			// If hero contains a link (most-recent article preview), make clicking the hero follow it
+			(function makeHeroClickable(){
+				const hero = document.querySelector('.hero');
+				if(!hero) return;
+				hero.addEventListener('click', function(e){
+					// don't intercept clicks on the toggle or inject slots
+					if(e.target.closest && e.target.closest('#hero-toggle-btn')) return;
+					if(e.target.closest && e.target.closest('.inject-slot')) return;
+					const anchor = hero.querySelector('a[href]');
+					if(anchor){
+						// if clicked directly on an existing link, allow default; otherwise navigate
+						if(e.target.tagName.toLowerCase() === 'a') return;
+						location.href = anchor.href;
+					}
+				});
 			})();
 			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
