@@ -23,20 +23,17 @@
 			<h2 class="site-title">Hourly Houston</h2>
 		</a>
 	</div>
-
-  <div class="header-right">
-    	<a href="/about.html" class="cta-link" aria-label="About">
-    		<button class="btn">About</button>
-    	</a>
-				<!-- desktop search form (hidden on small screens) -->
-				<form class="search-form" action="/search.html" method="get" role="search">
-					<label for="site-search" class="visually-hidden">Search articles</label>
-					<input id="site-search" name="q" type="search" placeholder="Search articles" aria-label="Search articles">
-					<button type="submit" aria-label="Submit search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-				</form>
-        	<!-- hamburger button: toggles the drawer on small screens -->
-        	<button class="hamburger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false" title="Open menu"><span class="bar"></span></button>
-  </div>
+	<div class="header-right">
+		<a href="/about.html" class="cta-link" aria-label="About">
+			<button class="btn">About</button>
+		</a>
+		<form class="search-form" action="/search.html" method="get" role="search">
+			<label for="q" class="visually-hidden">Search articles</label>
+			<input id="q" name="q" type="search" placeholder="Search articles" aria-label="Search articles">
+			<button type="submit" aria-label="Submit search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+		</form>
+		<button class="hamburger" aria-label="Open menu" aria-controls="drawer" aria-expanded="false" title="Open menu"><span class="bar"></span></button>
+	</div>
 </header>
 <!-- clickable backdrop: clicking will close the drawer -->
 <div class="backdrop" aria-hidden="true"></div>
