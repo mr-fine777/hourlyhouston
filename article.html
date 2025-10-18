@@ -31,21 +31,26 @@
     <title id="page-title">Hourly Houston</title>
     
     <!-- Core Meta Tags -->
-    <meta id="meta-desc" name="description" content="Latest news and updates from Houston">
+    <meta name="description" content="Latest news and updates from Houston">
     
-    <!-- Open Graph Meta Tags -->
+    <!-- Essential Open Graph Tags -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Hourly Houston">
-    <meta id="meta-ogtitle" property="og:title" content="">
-    <meta id="meta-ogdesc" property="og:description" content="">
-    <meta id="meta-ogimage" property="og:image" content="">
-    <meta id="meta-ogurl" property="og:url" content="">
+    <meta property="og:title" content="Hourly Houston">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="">
     
-    <!-- Twitter Card Meta Tags -->
+    <!-- Optional but Recommended Open Graph Tags -->
+    <meta property="og:locale" content="en_US">
+    <meta property="article:publisher" content="https://hourlyhouston.vercel.app/">
+    
+    <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta id="meta-twitter-title" name="twitter:title" content="">
-    <meta id="meta-twitter-desc" name="twitter:description" content="">
-    <meta id="meta-twitter-image" name="twitter:image" content="">
+    <meta name="twitter:site" content="@hourlyhouston">
+    <meta name="twitter:title" content="Hourly Houston">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
@@ -623,54 +628,24 @@
 					url: window.location.href
 				};
 
-				// Update meta tags one by one to ensure proper order
-				const elements = {
-					title: document.getElementById('page-title'),
-					desc: document.getElementById('meta-desc'),
-					ogTitle: document.getElementById('meta-ogtitle'),
-					ogDesc: document.getElementById('meta-ogdesc'),
-					ogImage: document.getElementById('meta-ogimage'),
-					ogUrl: document.getElementById('meta-ogurl'),
-					twitterTitle: document.getElementById('meta-twitter-title'),
-					twitterDesc: document.getElementById('meta-twitter-desc'),
-					twitterImage: document.getElementById('meta-twitter-image')
-				};
-
-				// Update document title
+				// Update meta tags
+				// Set title
 				document.title = `${article.title} - ${article.siteName}`;
-				if (elements.title) {
-					elements.title.textContent = `${article.title} - ${article.siteName}`;
-				}
+				document.getElementById('page-title').textContent = `${article.title} - ${article.siteName}`;
 
-				// Update meta description
-				if (elements.desc) {
-					elements.desc.setAttribute('content', article.description);
-				}
-
+				// Update meta tags by selecting them directly
+				document.querySelector('meta[name="description"]').setAttribute('content', article.description);
+				
 				// Update OpenGraph tags
-				if (elements.ogTitle) {
-					elements.ogTitle.setAttribute('content', article.title);
-				}
-				if (elements.ogDesc) {
-					elements.ogDesc.setAttribute('content', article.description);
-				}
-				if (elements.ogImage && article.image) {
-					elements.ogImage.setAttribute('content', article.image);
-				}
-				if (elements.ogUrl) {
-					elements.ogUrl.setAttribute('content', article.url);
-				}
-
+				document.querySelector('meta[property="og:title"]').setAttribute('content', article.title);
+				document.querySelector('meta[property="og:description"]').setAttribute('content', article.description);
+				document.querySelector('meta[property="og:image"]').setAttribute('content', article.image);
+				document.querySelector('meta[property="og:url"]').setAttribute('content', article.url);
+				
 				// Update Twitter Card tags
-				if (elements.twitterTitle) {
-					elements.twitterTitle.setAttribute('content', article.title);
-				}
-				if (elements.twitterDesc) {
-					elements.twitterDesc.setAttribute('content', article.description);
-				}
-				if (elements.twitterImage && article.image) {
-					elements.twitterImage.setAttribute('content', article.image);
-				}
+				document.querySelector('meta[name="twitter:title"]').setAttribute('content', article.title);
+				document.querySelector('meta[name="twitter:description"]').setAttribute('content', article.description);
+				document.querySelector('meta[name="twitter:image"]').setAttribute('content', article.image);
 
 				// Update article JSON-LD
 				const articleData = document.getElementById('article-data');
