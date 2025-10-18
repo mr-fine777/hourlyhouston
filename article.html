@@ -18,15 +18,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="UTF-8">
 	<meta property="og:site_name" content="Hourly Houston">
-	<meta property="og:title" id="og-title">
-	<meta property="og:description" id="og-desc">
+	<meta property="og:title" id="og-title" content="Hourly Houston">
+	<meta property="og:description" id="og-desc" content="Latest Houston news and updates">
 	<meta property="og:type" content="article">
-	<meta property="og:url" id="og-url">
-	<meta property="og:image" id="og-image">
+	<meta property="og:url" id="og-url" content="https://hourlyhouston.com/article.html">
+	<meta property="og:image" id="og-image" content="/img/icoW.png">
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" id="twitter-title">
-	<meta name="twitter:description" id="twitter-desc">
-	<meta name="twitter:image" id="twitter-image">
+	<meta name="twitter:title" id="twitter-title" content="Hourly Houston">
+	<meta name="twitter:description" id="twitter-desc" content="Latest Houston news and updates">
+	<meta name="twitter:image" id="twitter-image" content="/img/icoW.png">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
 </head>
@@ -569,24 +569,24 @@
 			if(!post) return;
 
             // Get the article details
-            const pageTitle = post.title || '';
-            const desc = (post.body || '').split('\n')[0] || '';
-            const image = post.url || '';
+            const pageTitle = post.title || 'Hourly Houston';
+            const desc = post.body ? post.body.split('\n')[0].trim() : 'Latest Houston news and updates';
+            const image = post.url || '/img/icoW.png';
             const url = window.location.href;
 
-            // Update document title
-            document.title = pageTitle ? `${pageTitle} - Hourly Houston` : 'Hourly Houston';
+            // Update document title and meta tags
+            document.title = pageTitle === 'Hourly Houston' ? pageTitle : `${pageTitle} - Hourly Houston`;
 
-            // Update Open Graph meta tags
-            document.getElementById('og-title').setAttribute('content', pageTitle);
-            document.getElementById('og-desc').setAttribute('content', desc);
-            document.getElementById('og-url').setAttribute('content', url);
-            document.getElementById('og-image').setAttribute('content', image);
+            // Update Open Graph meta tags with fallbacks
+            document.querySelector('meta[property="og:title"]').setAttribute('content', pageTitle);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+            document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+            document.querySelector('meta[property="og:image"]').setAttribute('content', image);
 
-            // Update Twitter Card meta tags
-            document.getElementById('twitter-title').setAttribute('content', pageTitle);
-            document.getElementById('twitter-desc').setAttribute('content', desc);
-            document.getElementById('twitter-image').setAttribute('content', image);
+            // Update Twitter Card meta tags with fallbacks
+            document.querySelector('meta[name="twitter:title"]').setAttribute('content', pageTitle);
+            document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+            document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
 
 			// replace hero content with only the article image
 			const heroEl = document.querySelector('.hero');
@@ -686,26 +686,6 @@
 					}
 				});
 			})();
-			// Update page title and meta tags for SEO
-			const articleTitle = post.title || 'Hourly Houston';
-			const articleDesc = (post.body || '').split('\n')[0] || 'Hourly Houston article';
-			const articleImage = post.url || '';
-			const currentUrl = window.location.href;
-
-			// Update document title
-			document.title = `${articleTitle} - Hourly Houston`;
-
-			// Update Open Graph meta tags
-			document.querySelector('meta[property="og:title"]').setAttribute('content', articleTitle);
-			document.querySelector('meta[property="og:description"]').setAttribute('content', articleDesc);
-			document.querySelector('#og-url').setAttribute('content', currentUrl);
-			document.querySelector('#og-image').setAttribute('content', articleImage);
-
-			// Update Twitter Card meta tags
-			document.querySelector('meta[name="twitter:title"]').setAttribute('content', articleTitle);
-			document.querySelector('meta[name="twitter:description"]').setAttribute('content', articleDesc);
-			document.querySelector('#twitter-image').setAttribute('content', articleImage);
-
 			// Update page content
 			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
