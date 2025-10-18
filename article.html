@@ -9,16 +9,16 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title id="page-title">Hourly Houston</title>
     <!-- SEO/meta placeholders (will be populated dynamically when the article loads) -->
-    <meta id="meta-desc" name="description" content="Hourly Houston article">
-    <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
-    <meta id="meta-ogdesc" property="og:description" content="Hourly Houston article">
+    <meta id="meta-desc" name="description" content="">
+    <meta id="meta-ogtitle" property="og:title" content="">
+    <meta id="meta-ogdesc" property="og:description" content="">
     <meta id="meta-ogimage" property="og:image" content="">
 	<meta id="meta-ogurl" property="og:url" content="https://hourlyhouston.vercel.app/">
 	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
-	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
-	<meta id="meta-twitter-desc" name="twitter:description" content="Hourly Houston article">
+	<meta id="meta-twitter-title" name="twitter:title" content="">
+	<meta id="meta-twitter-desc" name="twitter:description" content="">
 	<meta id="meta-twitter-image" name="twitter:image" content="">
-	<meta id="meta-name-title" name="title" content="Hourly Houston">
+	<meta id="meta-name-title" name="title" content="">
     <meta id="meta-twitter" name="twitter:card" content="summary_large_image">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
@@ -540,15 +540,7 @@
 // Final article loader: fetch post by title from querystring and populate the page (hero image, title, date, body)
 (function(){
 	function getTitleFromQS(){
-		try{
-			// Prefer explicit 'title' query param. URLSearchParams returns decoded values.
-			const params = new URLSearchParams(location.search);
-			const t = params.get('title');
-			return t ? String(t).trim() : '';
-		}catch(e){
-			// fallback to previous behavior (best-effort)
-			try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
-		}
+		try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
 	}
 
 	function formatDate(iso){
@@ -590,53 +582,43 @@
 			}
 
 			// Populate SEO/meta tags so shared links show useful preview
-			try{
-				// Take the text up to the first newline as the short description/preview
-				const firstPara = (post.body||'').split(/\n/)[0] || '';
-				const siteName = 'Hourly Houston';
-				// page title should include site name + article title
-				const pageTitle = `${siteName} - ${post.title || ''}`.trim();
-				// update <title>
-				const titleEl = document.getElementById('page-title');
-				if(titleEl) titleEl.textContent = pageTitle;
-				// also update document.title for good measure
-				try{ document.title = pageTitle; }catch(e){}
-
-				// Prepare description variants
-				const firstParaClean = firstPara.replace(/\n/g,' ').trim();
-				const standardDesc = `${siteName} - ${firstParaClean}`.trim(); // used for meta[name=description]
-				const ogDesc = firstParaClean; // used for Open Graph/Twitter description
-
-				// Ensure image URL is absolute (some stored urls may be relative)
-				let imgUrl = post.url || '';
-				if(imgUrl && !/^https?:\/\//i.test(imgUrl)){
-					imgUrl = (location.origin || (location.protocol + '//' + location.host)).replace(/\/$/,'') + '/' + String(imgUrl).replace(/^\//,'');
-				}
-
-				const titleOnly = post.title || siteName;
-
-				// Update any meta[name="description"] (there's a duplicate meta in the head) to keep crawlers consistent
-				const descMetas = document.querySelectorAll('meta[name="description"]');
-				if(descMetas && descMetas.length){
-					descMetas.forEach(m => m.setAttribute('content', standardDesc));
-				}
-				// Update the id'd meta-desc if present (keeps existing code paths)
-				const metaDescEl = document.getElementById('meta-desc'); if(metaDescEl) metaDescEl.setAttribute('content', standardDesc);
-
+			try {
+				// Get first paragraph of body for description
+				const firstParagraph = post.body.split('\n')[0].trim();
+				
+				// Update page title
+				document.title = `${post.title} - Hourly Houston`;
+				
+				// Update meta tags
+				document.getElementById('meta-desc').content = firstParagraph;
+				document.getElementById('meta-ogtitle').content = post.title;
+				document.getElementById('meta-ogdesc').content = firstParagraph;
+				document.getElementById('meta-ogimage').content = post.url;
+				document.getElementById('meta-twitter-title').content = post.title;
+				document.getElementById('meta-twitter-desc').content = firstParagraph;
+				document.getElementById('meta-twitter-image').content = post.url;
+				document.getElementById('meta-name-title').content = post.title;
+				const firstPara = (post.body||'').split(/\n\n+/)[0] || '';
+				// set document title and meta tags for social previews
+				const pageTitle = `Hourly Houston - ${post.title || ''}`.trim();
+				document.getElementById('page-title').textContent = pageTitle;
+				// standard description
+				const desc = firstPara.replace(/\n/g,' ');
+				const img = post.url || '';
+				const title = post.title || 'Hourly Houston';
+				document.getElementById('meta-desc').setAttribute('content', desc);
 				// Open Graph
-				const ogTitleEl = document.getElementById('meta-ogtitle'); if(ogTitleEl) ogTitleEl.setAttribute('content', titleOnly);
-				const ogDescEl = document.getElementById('meta-ogdesc'); if(ogDescEl) ogDescEl.setAttribute('content', ogDesc);
-				const ogImageEl = document.getElementById('meta-ogimage'); if(ogImageEl) ogImageEl.setAttribute('content', imgUrl);
-				const ogUrlEl = document.getElementById('meta-ogurl'); if(ogUrlEl) ogUrlEl.setAttribute('content', location.href);
-				const ogSiteEl = document.getElementById('meta-ogsite'); if(ogSiteEl) ogSiteEl.setAttribute('content', siteName);
-
+				document.getElementById('meta-ogtitle').setAttribute('content', title);
+				document.getElementById('meta-ogdesc').setAttribute('content', desc);
+				document.getElementById('meta-ogimage').setAttribute('content', img);
+				document.getElementById('meta-ogurl').setAttribute('content', location.href);
+				document.getElementById('meta-ogsite').setAttribute('content', 'Hourly Houston');
 				// Twitter
-				const twTitleEl = document.getElementById('meta-twitter-title'); if(twTitleEl) twTitleEl.setAttribute('content', titleOnly);
-				const twDescEl = document.getElementById('meta-twitter-desc'); if(twDescEl) twDescEl.setAttribute('content', ogDesc);
-				const twImageEl = document.getElementById('meta-twitter-image'); if(twImageEl) twImageEl.setAttribute('content', imgUrl);
-
+				document.getElementById('meta-twitter-title').setAttribute('content', title);
+				document.getElementById('meta-twitter-desc').setAttribute('content', desc);
+				document.getElementById('meta-twitter-image').setAttribute('content', img);
 				// fallback meta name=title
-				const metaNameTitle = document.getElementById('meta-name-title'); if(metaNameTitle) metaNameTitle.setAttribute('content', pageTitle);
+				document.getElementById('meta-name-title').setAttribute('content', pageTitle);
 			}catch(e){/* ignore if DOM meta nodes missing */}
 
 			// After inserting the article body, run any inject templates found in the head
