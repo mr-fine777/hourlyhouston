@@ -589,16 +589,17 @@
 				
 				// Update page title
 				document.title = `${post.title} - Hourly Houston`;
+				document.getElementById('page-title').textContent = `${post.title} - Hourly Houston`;
 				
 				// Update meta tags
-				document.getElementById('meta-desc').content = firstParagraph;
-				document.getElementById('meta-ogtitle').content = post.title;
-				document.getElementById('meta-ogdesc').content = firstParagraph;
-				document.getElementById('meta-ogimage').content = post.url;
-				document.getElementById('meta-twitter-title').content = post.title;
-				document.getElementById('meta-twitter-desc').content = firstParagraph;
-				document.getElementById('meta-twitter-image').content = post.url;
-				document.getElementById('meta-name-title').content = post.title;
+				document.getElementById('meta-desc').setAttribute('content', firstParagraph);
+				document.getElementById('meta-ogtitle').setAttribute('content', post.title);
+				document.getElementById('meta-ogdesc').setAttribute('content', firstParagraph);
+				document.getElementById('meta-ogimage').setAttribute('content', post.url);
+				document.getElementById('meta-twitter-title').setAttribute('content', post.title);
+				document.getElementById('meta-twitter-desc').setAttribute('content', firstParagraph);
+				document.getElementById('meta-twitter-image').setAttribute('content', post.url);
+				document.getElementById('meta-name-title').setAttribute('content', post.title);
 				// URL for sharing
 				document.getElementById('meta-ogurl').setAttribute('content', location.href);
 			}catch(e){/* ignore if DOM meta nodes missing */}
