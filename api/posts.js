@@ -68,7 +68,19 @@ export default async function handler(req, res) {
           if(!doc){
             // fallback to title-like matching from slug
             const slugToTitle = String(slugQuery).replace(/-/g,' ').replace(/\s+/g,' ').trim();
+            // Try exact-title-like match first (case-insensitive)
             doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+            if(!doc){
+              // Looser fallback: convert slug parts into a permissive regex that allows
+              // punctuation or words between parts. Example: 'foo-bar_baz' -> /foo.*bar.*baz/i
+              const parts = String(slugQuery).split(/-+/).map(p => p.trim()).filter(Boolean).map(escapeForRegex);
+              if(parts.length){
+                const loosePattern = parts.join('.*');
+                try{
+                  doc = await col.findOne({ title: { $regex: loosePattern, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+                }catch(e){ /* if regex is invalid or DB errors, ignore and continue */ }
+              }
+            }
           }
         } else if(titleQuery){
           doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
