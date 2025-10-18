@@ -34,10 +34,11 @@ function absolutizeImage(url, host) {
 
 export default async function handler(req, res) {
   try {
-    // support ?title=Exact Title or ?t= or ?slug=hyphenated-slug
-    const title = req.query && (req.query.title || req.query.t) ? (req.query.title || req.query.t) : null;
-    const slug = req.query && req.query.slug ? req.query.slug : null;
-    if (!title) return res.status(400).send('Missing title');
+  // support ?title=Exact Title or ?t= or ?slug=hyphenated-slug
+  const title = req.query && (req.query.title || req.query.t) ? (req.query.title || req.query.t) : null;
+  const slug = req.query && req.query.slug ? req.query.slug : null;
+  // Accept either a title or a slug; if only slug is provided we'll try slug-based lookup.
+  if (!title && !slug) return res.status(400).send('Missing title or slug');
     const { db } = await connect();
     const col = db.collection(MONGODB_COLLECTION);
     let doc = null;
@@ -45,12 +46,17 @@ export default async function handler(req, res) {
       // convert slug back to a title-like string and do case-insensitive match
       const slugToTitle = slug.replace(/-/g, ' ').replace(/\s+/g,' ').trim();
       doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+      // If slug lookup failed, as a fallback try matching the slug against a stored slug field (if present)
+      if(!doc){
+        doc = await col.findOne({ slug: slug }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+      }
     } else {
       doc = await col.findOne({ title: title }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
     }
     if (!doc) return res.status(404).send('Not found');
 
-    const host = req.headers.host ? `${req.headers['x-forwarded-proto'] || req.protocol || 'https'}://${req.headers.host}` : '';
+  const proto = (req.headers['x-forwarded-proto'] || 'https');
+  const host = req.headers.host ? `${proto}://${req.headers.host}` : '';
     const image = absolutizeImage(doc.url || '', host);
     const description = (doc.body || '').replace(/\s+/g, ' ').trim().slice(0, 200);
     const published = doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : '';
