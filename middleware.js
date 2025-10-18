@@ -1,5 +1,5 @@
-// Vercel Edge Middleware to serve server-side preview HTML to crawlers
-// For requests like /article.html?Some%20Title or /article.html?title=Some%20Title
+// Vercel/Next middleware: rewrite crawler requests for article pages to server preview
+import { NextResponse } from 'next/server';
 
 const CRAWLER_UAS = [
   /bot/i,
@@ -17,20 +17,20 @@ function isCrawler(ua){
   return CRAWLER_UAS.some(rx => rx.test(ua));
 }
 
-export default function middleware(req) {
+export function middleware(req){
   try{
     const ua = req.headers.get('user-agent') || '';
-    if(!isCrawler(ua)) return;
+    if(!isCrawler(ua)) return NextResponse.next();
 
     const url = new URL(req.url);
-    // we only rewrite requests to article.html that include a query (title)
+    // rewrite requests to article.html that include a query (title) to the preview endpoint
     if(url.pathname === '/article.html' && (url.search || url.searchParams.get('title'))){
-      // keep title param as-is and proxy to /api/preview
-      const title = url.search ? url.search.replace(/^\?/, '') : '';
-      const dest = `/api/preview?${title}`;
-      return Response.redirect(dest, 307);
+      const titleQuery = url.search ? url.search.replace(/^\?/, '') : '';
+      const dest = new URL(`/api/preview?${titleQuery}`, req.url);
+      return NextResponse.rewrite(dest);
     }
   }catch(e){ /* swallow errors to avoid breaking normal requests */ }
+  return NextResponse.next();
 }
 
 export const config = {
