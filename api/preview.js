@@ -34,11 +34,20 @@ function absolutizeImage(url, host) {
 
 export default async function handler(req, res) {
   try {
+    // support ?title=Exact Title or ?t= or ?slug=hyphenated-slug
     const title = req.query && (req.query.title || req.query.t) ? (req.query.title || req.query.t) : null;
+    const slug = req.query && req.query.slug ? req.query.slug : null;
     if (!title) return res.status(400).send('Missing title');
     const { db } = await connect();
     const col = db.collection(MONGODB_COLLECTION);
-    const doc = await col.findOne({ title: title }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+    let doc = null;
+    if(slug){
+      // convert slug back to a title-like string and do case-insensitive match
+      const slugToTitle = slug.replace(/-/g, ' ').replace(/\s+/g,' ').trim();
+      doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+    } else {
+      doc = await col.findOne({ title: title }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+    }
     if (!doc) return res.status(404).send('Not found');
 
     const host = req.headers.host ? `${req.headers['x-forwarded-proto'] || req.protocol || 'https'}://${req.headers.host}` : '';
@@ -46,7 +55,10 @@ export default async function handler(req, res) {
     const description = (doc.body || '').replace(/\s+/g, ' ').trim().slice(0, 200);
     const published = doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : '';
 
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  // helpful debug headers so you can tell if the preview endpoint was hit
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('X-Preview-Found', '1');
+  res.setHeader('X-Preview-Title', String(doc.title || ''));
     // cache briefly on CDN
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
 
@@ -88,4 +100,9 @@ export default async function handler(req, res) {
 function escapeHtml(str){
   if(!str) return '';
   return String(str).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]; });
+}
+
+function escapeForRegex(s){
+  if(!s) return '';
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
