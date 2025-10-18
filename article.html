@@ -541,7 +541,13 @@
 // Final article loader: fetch post by title from querystring and populate the page (hero image, title, date, body)
 (function(){
 	function getTitleFromQS(){
-		try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
+		try{
+			const params = new URLSearchParams(location.search);
+			if(params.has('title')) return params.get('title') || '';
+			const raw = location.search.replace(/^\?/,'');
+			if(raw && !raw.includes('=')) return decodeURIComponent(raw).trim();
+			return '';
+		}catch(e){ return ''; }
 	}
 
 	function formatDate(iso){
@@ -576,27 +582,30 @@
 		try{
 			// Fetch by title or slug depending on what's available
 			const q = title ? `title=${encodeURIComponent(title)}` : `slug=${encodeURIComponent(slugFromPath)}`;
-			const res = await fetch(`/api/posts?${q}`);
-			if(!res.ok) return; // not found or error
+			const fetchUrl = `/api/posts?${q}`;
+			const res = await fetch(fetchUrl);
+			if(!res.ok){
+				// log body where possible to help debug server errors (500)
+				console.error('article fetch failed', fetchUrl, res.status, await res.text().catch(()=>'<no-body>'));
+				return;
+			}
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
-						// replace hero content with only the article image (use post.url or post.image)
-						const heroEl = document.querySelector('.hero');
-						if(heroEl){
-								const imgUrl = post.url || post.image || '';
-								heroEl.innerHTML = '';
-								if(imgUrl){
-									const img = document.createElement('img');
-									img.src = imgUrl;
-									img.alt = post.title || '';
-									img.loading = 'lazy';
-									img.decoding = 'async';
-									heroEl.appendChild(img);
-								} else {
-									// no image available — keep hero empty to avoid showing placeholder text
-								}
-						}
+			// replace hero content with only the article image (use post.url or post.image)
+			const heroEl = document.querySelector('.hero');
+			if(heroEl){
+				const imgUrl = post.url || post.image || '';
+				heroEl.innerHTML = '';
+				if(imgUrl){
+					const img = document.createElement('img');
+					img.src = imgUrl;
+					img.alt = post.title || '';
+					img.loading = 'lazy';
+					img.decoding = 'async';
+					heroEl.appendChild(img);
+				}
+			}
 
 			// Populate SEO/meta tags so shared links show useful preview
 			try{
