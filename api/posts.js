@@ -52,14 +52,27 @@ export default async function handler(req, res) {
     const totalDocs = await col.countDocuments();
 
     // If ?title=... return the document matching that title (used by article page)
-    if (req.query && req.query.title) {
-      const titleQuery = req.query.title;
-      const doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+    // If ?title=... or ?slug=... return the document matching that title/slug (used by article page)
+    if (req.query && (req.query.title || req.query.slug)) {
+        const titleQuery = req.query.title;
+        const slugQuery = req.query.slug;
+        let doc = null;
+        if(slugQuery){
+          // try slug match first (stored slug field)
+          doc = await col.findOne({ slug: slugQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+          if(!doc){
+            // fallback to title-like matching from slug
+            const slugToTitle = String(slugQuery).replace(/-/g,' ').replace(/\s+/g,' ').trim();
+            doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+          }
+        } else if(titleQuery){
+          doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+        }
       const out = doc ? {
         _id: doc._id,
         title: doc.title || '',
         url: doc.url || '',
-        slug: slugify(doc.title || ''),
+          slug: slugify(doc.title || ''),
         body: doc.body || '',
         scrapedAt: doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : null,
       } : null;
