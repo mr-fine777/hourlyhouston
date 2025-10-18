@@ -29,6 +29,38 @@
 	<meta name="twitter:image" id="twitter-image" content="/img/icoW.png">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
+	
+	<script>
+		// Initialize SEO variables
+		window.seo = {
+			pageTitle: 'Hourly Houston',
+			desc: 'Latest Houston news and updates',
+			image: '/img/icoW.png',
+			url: window.location.href
+		};
+
+		// Function to update all SEO meta tags at once
+		window.updateSEO = function(data) {
+			const { title, desc, image, url } = data;
+			
+			// Update window title
+			document.title = title === 'Hourly Houston' ? title : `${title} - Hourly Houston`;
+			
+			// Update Open Graph tags
+			document.querySelector('meta[property="og:title"]').setAttribute('content', title);
+			document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+			document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+			document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+			
+			// Update Twitter Card tags
+			document.querySelector('meta[name="twitter:title"]').setAttribute('content', title);
+			document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+			document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
+			
+			// Store current values
+			window.seo = { pageTitle: title, desc, image, url };
+		};
+	</script>
 </head>
 <body>
 	<!-- Mobile menu toggle: button-driven accessible drawer (replaces checkbox pattern) -->
@@ -568,25 +600,13 @@
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
 
-            // Get the article details
-            const pageTitle = post.title || 'Hourly Houston';
-            const desc = post.body ? post.body.split('\n')[0].trim() : 'Latest Houston news and updates';
-            const image = post.url || '/img/icoW.png';
-            const url = window.location.href;
-
-            // Update document title and meta tags
-            document.title = pageTitle === 'Hourly Houston' ? pageTitle : `${pageTitle} - Hourly Houston`;
-
-            // Update Open Graph meta tags with fallbacks
-            document.querySelector('meta[property="og:title"]').setAttribute('content', pageTitle);
-            document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
-            document.querySelector('meta[property="og:url"]').setAttribute('content', url);
-            document.querySelector('meta[property="og:image"]').setAttribute('content', image);
-
-            // Update Twitter Card meta tags with fallbacks
-            document.querySelector('meta[name="twitter:title"]').setAttribute('content', pageTitle);
-            document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
-            document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
+            // Update SEO meta tags
+            window.updateSEO({
+                title: post.title || 'Hourly Houston',
+                desc: post.body ? post.body.split('\n')[0].trim() : 'Latest Houston news and updates',
+                image: post.url || '/img/icoW.png',
+                url: window.location.href
+            });
 
 			// replace hero content with only the article image
 			const heroEl = document.querySelector('.hero');
