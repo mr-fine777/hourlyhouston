@@ -8,7 +8,18 @@
     <link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title id="page-title">Hourly Houston</title>
-	<!-- Social/SEO meta tags removed per request -->
+    <!-- SEO/meta placeholders (will be populated dynamically when the article loads) -->
+    <meta id="meta-desc" name="description" content="Hourly Houston article">
+    <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
+    <meta id="meta-ogdesc" property="og:description" content="Hourly Houston article">
+    <meta id="meta-ogimage" property="og:image" content="">
+	<meta id="meta-ogurl" property="og:url" content="https://hourlyhouston.vercel.app/">
+	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
+	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
+	<meta id="meta-twitter-desc" name="twitter:description" content="Hourly Houston article">
+	<meta id="meta-twitter-image" name="twitter:image" content="">
+	<meta id="meta-name-title" name="title" content="Hourly Houston">
+    <meta id="meta-twitter" name="twitter:card" content="summary_large_image">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
@@ -18,47 +29,6 @@
     <!-- you can add your inject templates here in the head; see ids: inject-slot-1, inject-slot-2, inject-slot-3 -->
 	<meta name="description" content="Get updated content for Houston Hourly!">
 	<meta name="author" content="Hourly Houston">
-	<!-- Meta tags used/updated by client-side article script -->
-	<meta id="meta-desc" name="description" content="Get updated content for Houston Hourly!">
-	<!-- Open Graph -->
-	<meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
-	<meta id="meta-ogdesc" property="og:description" content="Get updated content for Houston Hourly!">
-	<meta id="meta-ogimage" property="og:image" content="">
-	<meta id="meta-ogurl" property="og:url" content="">
-	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
-	<!-- Twitter Card -->
-	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
-	<meta id="meta-twitter-desc" name="twitter:description" content="Get updated content for Houston Hourly!">
-	<meta id="meta-twitter-image" name="twitter:image" content="">
-	<!-- generic title meta used as fallback by script -->
-	<meta id="meta-name-title" name="title" content="Hourly Houston">
-	<!-- Early article identifier script: parse title from querystring and populate initial meta/title values -->
-	<script>
-	(function(){
-		// prefer the helper injected into <head>; fallback to local parsing
-		function _parseTitleFallback(){
-			try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
-		}
-		const articleTitle = _parseTitleFallback();
-		// expose for other scripts
-		window.getArticleTitleFromQS = _parseTitleFallback;
-		window.articleTitleFromQS = articleTitle;
-		if(articleTitle){
-			try{
-				const pageTitle = `Hourly Houston - ${articleTitle}`;
-				document.getElementById('page-title')?.textContent = pageTitle;
-				document.getElementById('meta-name-title')?.setAttribute('content', pageTitle);
-				document.getElementById('meta-ogtitle')?.setAttribute('content', articleTitle);
-				document.getElementById('meta-twitter-title')?.setAttribute('content', articleTitle);
-				document.getElementById('meta-ogurl')?.setAttribute('content', location.href);
-				const short = `Read ${articleTitle} on Hourly Houston`;
-				document.getElementById('meta-desc')?.setAttribute('content', short);
-				document.getElementById('meta-ogdesc')?.setAttribute('content', short);
-				document.getElementById('meta-twitter-desc')?.setAttribute('content', short);
-			}catch(e){ /* ignore if head nodes not present yet */ }
-		}
-	})();
-	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="UTF-8">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
@@ -593,7 +563,7 @@
 	}
 
 	async function load(){
-	const title = (typeof window.getArticleTitleFromQS === 'function') ? window.getArticleTitleFromQS() : _parseTitleFallback();
+		const title = getTitleFromQS();
 		if(!title) return;
 		try{
 			const res = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
@@ -619,18 +589,8 @@
 				document.getElementById('page-title').textContent = pageTitle;
 				// standard description
 				const desc = firstPara.replace(/\n/g,' ');
+				const img = post.url || '';
 				const title = post.title || 'Hourly Houston';
-				// prefer article image; use a sensible fallback
-				let img = post.url || '';
-				try{
-					// if img is relative, make it absolute based on location
-					if(img && !/^https?:\/\//i.test(img)){
-						const u = new URL(img, location.href);
-						img = u.href;
-					}
-				}catch(e){ /* leave img as-is */ }
-				if(!img) img = location.origin + '/ogImage.png';
-
 				document.getElementById('meta-desc').setAttribute('content', desc);
 				// Open Graph
 				document.getElementById('meta-ogtitle').setAttribute('content', title);
