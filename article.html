@@ -31,22 +31,22 @@
     <title>{{ARTICLE_TITLE}} - Hourly Houston</title>
     
     <!-- Core Meta Tags -->
-    <meta name="title" content="{{ARTICLE_TITLE}} - Hourly Houston">
-    <meta name="description" content="{{ARTICLE_DESCRIPTION}}">
+    <meta id="meta-title" name="title" content="Hourly Houston">
+    <meta id="meta-desc" name="description" content="Latest news and updates from Houston">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Hourly Houston">
-    <meta property="og:title" content="{{ARTICLE_TITLE}}">
-    <meta property="og:description" content="{{ARTICLE_DESCRIPTION}}">
-    <meta property="og:image" content="{{ARTICLE_IMAGE}}">
-    <meta property="og:url" content="{{CANONICAL_URL}}">
+    <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
+    <meta id="meta-ogdesc" property="og:description" content="">
+    <meta id="meta-ogimage" property="og:image" content="">
+    <meta id="meta-ogurl" property="og:url" content="">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ARTICLE_TITLE}}">
-    <meta name="twitter:description" content="{{ARTICLE_DESCRIPTION}}">
-    <meta name="twitter:image" content="{{ARTICLE_IMAGE}}">
+    <meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
+    <meta id="meta-twitter-desc" name="twitter:description" content="">
+    <meta id="meta-twitter-image" name="twitter:image" content="">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
@@ -616,14 +616,51 @@
 					url: window.location.href
 				};
 
+				// Update meta tags
+				const metaTags = {
+					// Core meta tags
+					'meta-title': `${article.title} - Hourly Houston`,
+					'meta-desc': article.description,
+					
+					// Open Graph meta tags
+					'meta-ogtitle': article.title,
+					'meta-ogdesc': article.description,
+					'meta-ogimage': article.image,
+					'meta-ogurl': article.url,
+					
+					// Twitter Card meta tags
+					'meta-twitter-title': article.title,
+					'meta-twitter-desc': article.description,
+					'meta-twitter-image': article.image
+				};
+
+				// Update all meta tags
+				Object.entries(metaTags).forEach(([id, content]) => {
+					const element = document.getElementById(id);
+					if (element) {
+						element.setAttribute('content', content);
+					}
+				});
+
 				// Update article JSON-LD
 				const articleData = document.getElementById('article-data');
 				if (articleData) {
-					const jsonLd = JSON.parse(articleData.textContent);
-					jsonLd.headline = article.title;
-					jsonLd.image = article.image;
-					jsonLd.description = article.description;
-					jsonLd.datePublished = article.date;
+					const jsonLd = {
+						"@context": "https://schema.org",
+						"@type": "NewsArticle",
+						"headline": article.title,
+						"image": article.image,
+						"description": article.description,
+						"datePublished": article.date,
+						"publisher": {
+							"@type": "Organization",
+							"name": "Hourly Houston",
+							"logo": {
+								"@type": "ImageObject",
+								"url": "https://hourlyhouston.vercel.app/img/ico.png"
+							}
+						}
+					};
 					articleData.textContent = JSON.stringify(jsonLd, null, 2);
 				}
 
