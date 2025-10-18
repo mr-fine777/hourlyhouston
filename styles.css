@@ -733,3 +733,21 @@ body.menu-open .site-header { pointer-events: auto; }
 
 /* small helper to visually hide labels while keeping them accessible */
 .visually-hidden{ position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
+
+/* Skip link — visible on focus for keyboard users */
+.skip-link{
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  background: #000;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 9999;
+  transform: translateY(-120%);
+  transition: transform 0.16s ease;
+}
+.skip-link:focus{
+  transform: translateY(0%);
+  outline: 3px solid rgba(255,255,255,0.18);
+}
