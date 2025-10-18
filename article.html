@@ -563,10 +563,19 @@
 	}
 
 	async function load(){
-		const title = getTitleFromQS();
-		if(!title) return;
+			// Prefer title from querystring (legacy), but fall back to a slug in the pathname (/articles/:slug)
+			let title = getTitleFromQS();
+			let slugFromPath = '';
+			if(!title){
+				// detect /articles/:slug
+				const m = location.pathname.match(/\/articles\/(.+)$/);
+				if(m && m[1]) slugFromPath = decodeURIComponent(m[1]).replace(/\/+$/,'');
+			}
+			if(!title && !slugFromPath) return;
 		try{
-			const res = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
+			// Fetch by title or slug depending on what's available
+			const q = title ? `title=${encodeURIComponent(title)}` : `slug=${encodeURIComponent(slugFromPath)}`;
+			const res = await fetch(`/api/posts?${q}`);
 			if(!res.ok) return; // not found or error
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
