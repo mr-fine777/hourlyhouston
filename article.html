@@ -18,14 +18,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="UTF-8">
 	<meta property="og:site_name" content="Hourly Houston">
-	<meta property="og:title" content="Hourly Houston">
-	<meta property="og:description" content="Hourly Houston article">
+	<meta property="og:title" id="og-title">
+	<meta property="og:description" id="og-desc">
 	<meta property="og:type" content="article">
 	<meta property="og:url" id="og-url">
 	<meta property="og:image" id="og-image">
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Hourly Houston">
-	<meta name="twitter:description" content="Hourly Houston article">
+	<meta name="twitter:title" id="twitter-title">
+	<meta name="twitter:description" id="twitter-desc">
 	<meta name="twitter:image" id="twitter-image">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
@@ -567,17 +567,36 @@
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
+
+            // Get the article details
+            const pageTitle = post.title || '';
+            const desc = (post.body || '').split('\n')[0] || '';
+            const image = post.url || '';
+            const url = window.location.href;
+
+            // Update document title
+            document.title = pageTitle ? `${pageTitle} - Hourly Houston` : 'Hourly Houston';
+
+            // Update Open Graph meta tags
+            document.getElementById('og-title').setAttribute('content', pageTitle);
+            document.getElementById('og-desc').setAttribute('content', desc);
+            document.getElementById('og-url').setAttribute('content', url);
+            document.getElementById('og-image').setAttribute('content', image);
+
+            // Update Twitter Card meta tags
+            document.getElementById('twitter-title').setAttribute('content', pageTitle);
+            document.getElementById('twitter-desc').setAttribute('content', desc);
+            document.getElementById('twitter-image').setAttribute('content', image);
+
 			// replace hero content with only the article image
 			const heroEl = document.querySelector('.hero');
 			if(heroEl){
 				heroEl.innerHTML = '';
 				const img = document.createElement('img');
-				img.src = post.url || '';
-				img.alt = post.title || '';
+				img.src = image;
+				img.alt = pageTitle;
 				heroEl.appendChild(img);
 			}
-
-			// SEO/meta updates removed per request
 
 			// After inserting the article body, run any inject templates found in the head
 			// Find .inject-slot placeholders and populate from matching <script type="text/x-inject" id="inject-slot-N">
@@ -688,7 +707,7 @@
 			document.querySelector('#twitter-image').setAttribute('content', articleImage);
 
 			// Update page content
-			const t = document.getElementById('title'); if(t) t.textContent = articleTitle;
+			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
 			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
 		}catch(err){ console.error('article load error', err); }
