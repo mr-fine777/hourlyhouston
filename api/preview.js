@@ -60,6 +60,13 @@ export default async function handler(req, res) {
     const image = absolutizeImage(doc.url || '', host);
     const description = (doc.body || '').replace(/\s+/g, ' ').trim().slice(0, 200);
     const published = doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : '';
+    // canonical URL: prefer /articles/:slug when slug provided or derived, else article.html with title
+    let canonical = '';
+    if (slug) {
+      canonical = `${host.replace(/\/$/, '')}/articles/${encodeURIComponent(slug)}`;
+    } else if (doc.title) {
+      canonical = `${host.replace(/\/$/, '')}/article.html?${encodeURIComponent(String(doc.title))}`;
+    }
 
   // helpful debug headers so you can tell if the preview endpoint was hit
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -79,6 +86,8 @@ export default async function handler(req, res) {
   <meta property="og:site_name" content="Hourly Houston">
   <meta property="og:title" content="${escapeHtml(doc.title || '')}">
   <meta property="og:description" content="${escapeHtml(description)}">
+  ${canonical ? `<meta property="og:url" content="${escapeHtml(canonical)}">` : ''}
+  <link rel="stylesheet" href="${host.replace(/\/$/, '')}/styles.css">
   ${image ? `<meta property="og:image" content="${escapeHtml(image)}">` : ''}
   ${published ? `<meta property="article:published_time" content="${escapeHtml(published)}">` : ''}
   <meta name="twitter:card" content="summary_large_image">
