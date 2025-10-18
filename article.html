@@ -7,30 +7,26 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title id="page-title">Hourly Houston</title>
-    <!-- SEO/meta placeholders (will be populated dynamically when the article loads) -->
-    <meta id="meta-desc" name="description" content="Hourly Houston article">
-    <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
-    <meta id="meta-ogdesc" property="og:description" content="Hourly Houston article">
-    <meta id="meta-ogimage" property="og:image" content="">
-	<meta id="meta-ogurl" property="og:url" content="https://hourlyhouston.vercel.app/">
-	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
-	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
-	<meta id="meta-twitter-desc" name="twitter:description" content="Hourly Houston article">
-	<meta id="meta-twitter-image" name="twitter:image" content="">
-	<meta id="meta-name-title" name="title" content="Hourly Houston">
-    <meta id="meta-twitter" name="twitter:card" content="summary_large_image">
+	<title id="page-title">Hourly Houston</title>
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
 	    <script type="text/x-inject" id="inject-slot-1">&lt;div class="my-widget"&gt;Your widget HTML here&lt;/div&gt;</script>
 	    To execute JS instead of inserting HTML, add data-exec="true" and the runner will create and execute a real <script> element in the matching slot.
     -->
-    <!-- you can add your inject templates here in the head; see ids: inject-slot-1, inject-slot-2, inject-slot-3 -->
-	<meta name="description" content="Get updated content for Houston Hourly!">
-	<meta name="author" content="Hourly Houston">
+	<!-- you can add your inject templates here in the head; see ids: inject-slot-1, inject-slot-2, inject-slot-3 -->
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="UTF-8">
+	<meta property="og:site_name" content="Hourly Houston">
+	<meta property="og:title" content="Hourly Houston">
+	<meta property="og:description" content="Hourly Houston article">
+	<meta property="og:type" content="article">
+	<meta property="og:url" id="og-url">
+	<meta property="og:image" id="og-image">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Hourly Houston">
+	<meta name="twitter:description" content="Hourly Houston article">
+	<meta name="twitter:image" id="twitter-image">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
 </head>
@@ -581,30 +577,7 @@
 				heroEl.appendChild(img);
 			}
 
-			// Populate SEO/meta tags so shared links show useful preview
-			try{
-				const firstPara = (post.body||'').split(/\n\n+/)[0] || '';
-				// set document title and meta tags for social previews
-				const pageTitle = `Hourly Houston - ${post.title || ''}`.trim();
-				document.getElementById('page-title').textContent = pageTitle;
-				// standard description
-				const desc = firstPara.replace(/\n/g,' ');
-				const img = 'ogImage.png';
-				const title = post.title || 'Hourly Houston';
-				document.getElementById('meta-desc').setAttribute('content', desc);
-				// Open Graph
-				document.getElementById('meta-ogtitle').setAttribute('content', title);
-				document.getElementById('meta-ogdesc').setAttribute('content', desc);
-				document.getElementById('meta-ogimage').setAttribute('content', img);
-				document.getElementById('meta-ogurl').setAttribute('content', location.href);
-				document.getElementById('meta-ogsite').setAttribute('content', 'Hourly Houston');
-				// Twitter
-				document.getElementById('meta-twitter-title').setAttribute('content', title);
-				document.getElementById('meta-twitter-desc').setAttribute('content', desc);
-				document.getElementById('meta-twitter-image').setAttribute('content', img);
-				// fallback meta name=title
-				document.getElementById('meta-name-title').setAttribute('content', pageTitle);
-			}catch(e){/* ignore if DOM meta nodes missing */}
+			// SEO/meta updates removed per request
 
 			// After inserting the article body, run any inject templates found in the head
 			// Find .inject-slot placeholders and populate from matching <script type="text/x-inject" id="inject-slot-N">
@@ -694,7 +667,28 @@
 					}
 				});
 			})();
-			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
+			// Update page title and meta tags for SEO
+			const articleTitle = post.title || 'Hourly Houston';
+			const articleDesc = (post.body || '').split('\n')[0] || 'Hourly Houston article';
+			const articleImage = post.url || '';
+			const currentUrl = window.location.href;
+
+			// Update document title
+			document.title = `${articleTitle} - Hourly Houston`;
+
+			// Update Open Graph meta tags
+			document.querySelector('meta[property="og:title"]').setAttribute('content', articleTitle);
+			document.querySelector('meta[property="og:description"]').setAttribute('content', articleDesc);
+			document.querySelector('#og-url').setAttribute('content', currentUrl);
+			document.querySelector('#og-image').setAttribute('content', articleImage);
+
+			// Update Twitter Card meta tags
+			document.querySelector('meta[name="twitter:title"]').setAttribute('content', articleTitle);
+			document.querySelector('meta[name="twitter:description"]').setAttribute('content', articleDesc);
+			document.querySelector('#twitter-image').setAttribute('content', articleImage);
+
+			// Update page content
+			const t = document.getElementById('title'); if(t) t.textContent = articleTitle;
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
 			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
 		}catch(err){ console.error('article load error', err); }
