@@ -41,13 +41,27 @@ export default async function handler(req, res) {
     }catch(e){ /* ignore */ }
     if(!image) image = (req.headers['x-forwarded-proto'] || 'https') + '://' + (req.headers.host || '') + '/ogImage.png';
 
-    const html = `<!doctype html><html><head>
+  // Best-effort structured image metadata. Platforms prefer large images ~1200x630.
+  const imageWidth = 1200;
+  const imageHeight = 630;
+  const imageAlt = escapeHtml(title);
+  const canonicalUrl = (req.headers['x-forwarded-proto'] || 'https') + '://' + (req.headers.host || '') + req.url;
+
+  const html = `<!doctype html><html prefix="og: https://ogp.me/ns#">
+<head>
 <meta charset="utf-8">
 <title>${escapeHtml(title)}</title>
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Hourly Houston">
+<meta property="og:url" content="${escapeHtml(canonicalUrl)}">
 <meta property="og:image" content="${escapeHtml(image)}">
-<meta property="og:url" content="${escapeHtml((req.headers['x-forwarded-proto'] || 'https') + '://' + (req.headers.host || '') + req.url)}">
+<meta property="og:image:secure_url" content="${escapeHtml(image)}">
+<meta property="og:image:width" content="${imageWidth}">
+<meta property="og:image:height" content="${imageHeight}">
+<meta property="og:image:alt" content="${imageAlt}">
+<meta property="article:published_time" content="${escapeHtml(doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : new Date().toISOString())}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
