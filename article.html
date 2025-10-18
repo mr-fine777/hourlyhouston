@@ -28,23 +28,22 @@
       }
     </script>
 
-    <title>{{ARTICLE_TITLE}} - Hourly Houston</title>
+    <title id="page-title">Hourly Houston</title>
     
     <!-- Core Meta Tags -->
-    <meta id="meta-title" name="title" content="Hourly Houston">
     <meta id="meta-desc" name="description" content="Latest news and updates from Houston">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Hourly Houston">
-    <meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
+    <meta id="meta-ogtitle" property="og:title" content="">
     <meta id="meta-ogdesc" property="og:description" content="">
     <meta id="meta-ogimage" property="og:image" content="">
     <meta id="meta-ogurl" property="og:url" content="">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
+    <meta id="meta-twitter-title" name="twitter:title" content="">
     <meta id="meta-twitter-desc" name="twitter:description" content="">
     <meta id="meta-twitter-image" name="twitter:image" content="">
 
@@ -593,7 +592,13 @@
 			
 			if(titleEl) titleEl.textContent = post.title || '';
 			if(dateEl) dateEl.textContent = formatDate(post.scrapedAt);
-			if(bodyEl) bodyEl.innerHTML = post.body || '';
+			// Format body with paragraphs
+			if(bodyEl) {
+				const paragraphs = (post.body || '').split('\n\n').map(p => 
+					`<p>${p.trim().replace(/\n/g, '<br>')}</p>`
+				).join('\n');
+				bodyEl.innerHTML = paragraphs;
+			}
 
 			// replace hero content with article image
 			const heroEl = document.querySelector('.hero');
@@ -607,40 +612,65 @@
 
 			// Update meta tags and JSON-LD
 			try {
+				// Get first paragraph before first newline for meta description
 				const firstParagraph = (post.body || '').split('\n')[0] || '';
 				const article = {
-					title: post.title || 'Hourly Houston',
+					title: post.title || '',
+					siteName: 'Hourly Houston',
 					image: post.url || '',
 					description: firstParagraph.trim(),
 					date: post.scrapedAt,
 					url: window.location.href
 				};
 
-				// Update meta tags
-				const metaTags = {
-					// Core meta tags
-					'meta-title': `${article.title} - Hourly Houston`,
-					'meta-desc': article.description,
-					
-					// Open Graph meta tags
-					'meta-ogtitle': article.title,
-					'meta-ogdesc': article.description,
-					'meta-ogimage': article.image,
-					'meta-ogurl': article.url,
-					
-					// Twitter Card meta tags
-					'meta-twitter-title': article.title,
-					'meta-twitter-desc': article.description,
-					'meta-twitter-image': article.image
+				// Update meta tags one by one to ensure proper order
+				const elements = {
+					title: document.getElementById('page-title'),
+					desc: document.getElementById('meta-desc'),
+					ogTitle: document.getElementById('meta-ogtitle'),
+					ogDesc: document.getElementById('meta-ogdesc'),
+					ogImage: document.getElementById('meta-ogimage'),
+					ogUrl: document.getElementById('meta-ogurl'),
+					twitterTitle: document.getElementById('meta-twitter-title'),
+					twitterDesc: document.getElementById('meta-twitter-desc'),
+					twitterImage: document.getElementById('meta-twitter-image')
 				};
 
-				// Update all meta tags
-				Object.entries(metaTags).forEach(([id, content]) => {
-					const element = document.getElementById(id);
-					if (element) {
-						element.setAttribute('content', content);
-					}
-				});
+				// Update document title
+				document.title = `${article.title} - ${article.siteName}`;
+				if (elements.title) {
+					elements.title.textContent = `${article.title} - ${article.siteName}`;
+				}
+
+				// Update meta description
+				if (elements.desc) {
+					elements.desc.setAttribute('content', article.description);
+				}
+
+				// Update OpenGraph tags
+				if (elements.ogTitle) {
+					elements.ogTitle.setAttribute('content', article.title);
+				}
+				if (elements.ogDesc) {
+					elements.ogDesc.setAttribute('content', article.description);
+				}
+				if (elements.ogImage && article.image) {
+					elements.ogImage.setAttribute('content', article.image);
+				}
+				if (elements.ogUrl) {
+					elements.ogUrl.setAttribute('content', article.url);
+				}
+
+				// Update Twitter Card tags
+				if (elements.twitterTitle) {
+					elements.twitterTitle.setAttribute('content', article.title);
+				}
+				if (elements.twitterDesc) {
+					elements.twitterDesc.setAttribute('content', article.description);
+				}
+				if (elements.twitterImage && article.image) {
+					elements.twitterImage.setAttribute('content', article.image);
+				}
 
 				// Update article JSON-LD
 				const articleData = document.getElementById('article-data');
