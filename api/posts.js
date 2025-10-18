@@ -19,6 +19,11 @@ function slugify(title){
     .replace(/-+/g, '-');
 }
 
+function escapeForRegex(str){
+  // escape special regex characters so we can build dynamic regexes safely
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function connectToDatabase(uri, dbName) {
   if (cachedClient && cachedDb) return { client: cachedClient, db: cachedDb };
   const client = new MongoClient(uri, { ignoreUndefined: true });
