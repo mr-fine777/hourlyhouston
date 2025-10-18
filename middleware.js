@@ -17,17 +17,39 @@ function isCrawler(ua){
   return CRAWLER_UAS.some(rx => rx.test(ua));
 }
 
-export default function middleware(req){
+export default async function middleware(req){
   try{
     const ua = req.headers.get('user-agent') || '';
     if(!isCrawler(ua)) return;
 
     const url = new URL(req.url);
     if(url.pathname === '/article.html' && (url.search || url.searchParams.get('title'))){
-      const titleQuery = url.search ? url.search.replace(/^\?/, '') : '';
-      // Redirect crawlers to the preview API which returns server-rendered OG meta
-      const dest = `${url.origin}/api/preview?${titleQuery}`;
-      return Response.redirect(dest, 307);
+      // Build a safe query for the preview endpoint.
+      let titleQuery = '';
+      if(url.search){
+        const raw = url.search.replace(/^\?/, '');
+        if(raw.includes('=')){
+          titleQuery = raw;
+        } else {
+          try{ const decoded = decodeURIComponent(raw); titleQuery = 'title=' + encodeURIComponent(decoded); }
+          catch(e){ titleQuery = 'title=' + encodeURIComponent(raw); }
+        }
+      }
+
+      // Proxy the preview API server-side and return its response to the crawler.
+      const previewUrl = `${url.origin}/api/preview?${titleQuery}`;
+      try{
+        const previewRes = await fetch(previewUrl, { method: 'GET', headers: { 'User-Agent': ua } });
+        // clone headers excluding hop-by-hop headers
+        const resHeaders = new Headers(previewRes.headers);
+        // Ensure content-type and cache-control are preserved; others fine to pass through
+        const buf = await previewRes.arrayBuffer();
+        return new Response(buf, { status: previewRes.status, headers: resHeaders });
+      }catch(fetchErr){
+        // if preview fetch fails, fall back to redirect (best-effort)
+        const dest = `${url.origin}/api/preview?${titleQuery}`;
+        return Response.redirect(dest, 307);
+      }
     }
   }catch(e){ /* swallow errors to avoid breaking normal requests */ }
   // returning undefined lets the request continue to normal file handling
