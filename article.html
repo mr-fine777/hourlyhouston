@@ -7,25 +7,46 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title id="page-title">Hourly Houston</title>
-    <!-- Required Open Graph meta tags -->
+    
+    <!-- Dynamic Meta Tags - These will be replaced by the server -->
+    <script type="application/ld+json" id="article-data">
+      {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": "{{ARTICLE_TITLE}}",
+        "image": "{{ARTICLE_IMAGE}}",
+        "description": "{{ARTICLE_DESCRIPTION}}",
+        "datePublished": "{{ARTICLE_DATE}}",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Hourly Houston",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://hourlyhouston.vercel.app/img/ico.png"
+          }
+        }
+      }
+    </script>
+
+    <title>{{ARTICLE_TITLE}} - Hourly Houston</title>
+    
+    <!-- Core Meta Tags -->
+    <meta name="title" content="{{ARTICLE_TITLE}} - Hourly Houston">
+    <meta name="description" content="{{ARTICLE_DESCRIPTION}}">
+    
+    <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Hourly Houston">
-    <meta property="og:url" content="">
-    <meta property="og:title" content="">
-    <meta property="og:description" content="">
-    <meta property="og:image" content="">
-    <meta property="og:image:alt" content="">
-    <meta property="article:published_time" content="">
-    <!-- Twitter Card meta tags -->
+    <meta property="og:title" content="{{ARTICLE_TITLE}}">
+    <meta property="og:description" content="{{ARTICLE_DESCRIPTION}}">
+    <meta property="og:image" content="{{ARTICLE_IMAGE}}">
+    <meta property="og:url" content="{{CANONICAL_URL}}">
+    
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@hourlyhouston">
-    <meta name="twitter:title" content="">
-    <meta name="twitter:description" content="">
-    <meta name="twitter:image" content="">
-    <!-- Standard meta tags -->
-    <meta name="title" content="">
-    <meta name="description" content="">
+    <meta name="twitter:title" content="{{ARTICLE_TITLE}}">
+    <meta name="twitter:description" content="{{ARTICLE_DESCRIPTION}}">
+    <meta name="twitter:image" content="{{ARTICLE_IMAGE}}">
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
@@ -543,7 +564,7 @@
 
 </script>
 <script>
-// Final article loader: fetch post by title from querystring and populate the page (hero image, title, date, body)
+// Final article loader: fetch post by title from querystring and populate the page
 (function(){
 	function getTitleFromQS(){
 		try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
@@ -555,19 +576,6 @@
 		return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
 	}
 
-	function bodyToHtml(text){
-		if(!text) return '';
-		// split into paragraphs and insert injection slot divs between them
-		const parts = text.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br/>')}</p>`);
-		// interleave injection placeholders (three slots max)
-		const out = [];
-		for(let i=0;i<parts.length;i++){
-			out.push(parts[i]);
-			if(i < 3){ out.push(`<div class="inject-slot" data-slot="inject-slot-${i+1}"></div>`); }
-		}
-		return out.join('\n');
-	}
-
 	async function load(){
 		const title = getTitleFromQS();
 		if(!title) return;
@@ -577,7 +585,17 @@
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
-			// replace hero content with only the article image
+
+			// Update article content
+			const titleEl = document.getElementById('title');
+			const dateEl = document.getElementById('date');
+			const bodyEl = document.getElementById('body');
+			
+			if(titleEl) titleEl.textContent = post.title || '';
+			if(dateEl) dateEl.textContent = formatDate(post.scrapedAt);
+			if(bodyEl) bodyEl.innerHTML = post.body || '';
+
+			// replace hero content with article image
 			const heroEl = document.querySelector('.hero');
 			if(heroEl){
 				heroEl.innerHTML = '';
@@ -587,73 +605,32 @@
 				heroEl.appendChild(img);
 			}
 
-			// Fetch metadata from sitemap for this article
+			// Update meta tags and JSON-LD
 			try {
-				const parser = new DOMParser();
-				const baseUrl = 'https://hourlyhouston.vercel.app';
-				const currentUrl = `${baseUrl}${location.pathname}${location.search}`;
-				
-				// Fetch sitemap
-				const sitemapRes = await fetch('/api/sitemap');
-				const sitemapText = await sitemapRes.text();
-				const sitemap = parser.parseFromString(sitemapText, 'text/xml');
-				
-				// Find our article in the sitemap
-				const urls = sitemap.getElementsByTagName('url');
-				let articleMeta = null;
-				
-				for(const url of urls) {
-					const loc = url.getElementsByTagName('loc')[0]?.textContent;
-					if(loc === currentUrl) {
-						const newsTitle = url.querySelector('news\\:title')?.textContent;
-						const imageUrl = url.querySelector('image\\:loc')?.textContent;
-						const imageTitle = url.querySelector('image\\:title')?.textContent;
-						const imageCaption = url.querySelector('image\\:caption')?.textContent;
-						const pubDate = url.querySelector('news\\:publication_date')?.textContent;
-						
-						articleMeta = {
-							title: newsTitle,
-							image: imageUrl,
-							description: imageCaption,
-							publishDate: pubDate
-						};
-						break;
-					}
-				}
-				
-				if(articleMeta) {
-					const pageTitle = `${articleMeta.title} - Hourly Houston`;
-					
-					// Update document title
-					document.title = pageTitle;
-					document.getElementById('page-title').textContent = pageTitle;
-					
-					// Update meta tags using data from sitemap
-					const metaTags = {
-						'meta[property="og:url"]': currentUrl,
-						'meta[property="og:title"]': articleMeta.title,
-						'meta[property="og:description"]': articleMeta.description,
-						'meta[property="og:image"]': articleMeta.image,
-						'meta[property="og:image:alt"]': articleMeta.title,
-						'meta[property="article:published_time"]': articleMeta.publishDate,
-						'meta[name="twitter:title"]': articleMeta.title,
-						'meta[name="twitter:description"]': articleMeta.description,
-						'meta[name="twitter:image"]': articleMeta.image,
-						'meta[name="title"]': pageTitle,
-						'meta[name="description"]': articleMeta.description
-					};
-					
-					// Update all meta tags
-					for(const [selector, content] of Object.entries(metaTags)) {
-						const tag = document.querySelector(selector);
-						if(tag) tag.setAttribute('content', content);
-					}
-				}
-			}catch(e){/* ignore if DOM meta nodes missing */}
+				const firstParagraph = (post.body || '').split('\n')[0] || '';
+				const article = {
+					title: post.title || 'Hourly Houston',
+					image: post.url || '',
+					description: firstParagraph.trim(),
+					date: post.scrapedAt,
+					url: window.location.href
+				};
 
-			// After inserting the article body, run any inject templates found in the head
-			// Find .inject-slot placeholders and populate from matching <script type="text/x-inject" id="inject-slot-N">
-			(function runInjects(){
+				// Update article JSON-LD
+				const articleData = document.getElementById('article-data');
+				if (articleData) {
+					const jsonLd = JSON.parse(articleData.textContent);
+					jsonLd.headline = article.title;
+					jsonLd.image = article.image;
+					jsonLd.description = article.description;
+					jsonLd.datePublished = article.date;
+					articleData.textContent = JSON.stringify(jsonLd, null, 2);
+				}
+
+				// Update document title
+				document.title = `${article.title} - Hourly Houston`;
+
+				// Insert content into slots
 				const slots = Array.from(document.querySelectorAll('.inject-slot'));
 				slots.forEach(slot => {
 					const id = slot.dataset.slot;
@@ -667,85 +644,25 @@
 						s.type = 'application/javascript';
 						s.text = content;
 						slot.appendChild(s);
-					}else{
-						// treat content as escaped HTML (user can include &lt;div&gt; markup in the template)
+					} else {
 						slot.innerHTML = content;
 					}
 				});
-			})();
 
-			// Helper: if the hero gets replaced by another page (race), offer a toggle so user can restore the article image
-			(function ensureHeroToggle(){
-				const hero = document.querySelector('.hero');
-				if(!hero) return;
-				// create toggle button (once)
-				let toggle = document.getElementById('hero-toggle-btn');
-				function makeToggle(){
-					if(toggle) return toggle;
-					toggle = document.createElement('button');
-					toggle.id = 'hero-toggle-btn';
-					toggle.textContent = 'Show article image';
-					toggle.setAttribute('aria-hidden','false');
-					toggle.style.position = 'absolute';				// position inside hero
-					toggle.style.right = '18px';
-					toggle.style.top = '18px';
-					toggle.style.zIndex = 5;
-					toggle.style.padding = '8px 12px';
-					toggle.style.borderRadius = '8px';
-					toggle.style.border = '0';
-					toggle.style.background = 'rgba(0,0,0,0.5)';
-					toggle.style.color = '#fff';
-					toggle.style.cursor = 'pointer';
-					hero.style.position = 'relative';
-					hero.appendChild(toggle);
-					return toggle;
-				}
-
-				function showArticleImage(){
-					hero.innerHTML = '';
-					const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
-					hero.appendChild(img);
-					if(toggle && toggle.parentNode) toggle.parentNode.removeChild(toggle);
-				}
-
-				// Observe hero for replacements and show toggle if needed
-				const obs = new MutationObserver(muts => {
-					const img = hero.querySelector('img');
-					if(img && img.src && post.url && img.src.indexOf(post.url) === -1){
-						// hero shows another image
-						makeToggle();
-						toggle.onclick = showArticleImage;
-					} else {
-						// hero already shows article image; remove toggle
-						if(toggle && toggle.parentNode) toggle.parentNode.removeChild(toggle);
-					}
-				});
-				obs.observe(hero, { childList: true, subtree: true });
-			})();
-
-			// If hero contains a link (most-recent article preview), make clicking the hero follow it
-			(function makeHeroClickable(){
-				const hero = document.querySelector('.hero');
-				if(!hero) return;
-				hero.addEventListener('click', function(e){
-					// don't intercept clicks on the toggle or inject slots
-					if(e.target.closest && e.target.closest('#hero-toggle-btn')) return;
-					if(e.target.closest && e.target.closest('.inject-slot')) return;
-					const anchor = hero.querySelector('a[href]');
-					if(anchor){
-						// if clicked directly on an existing link, allow default; otherwise navigate
-						if(e.target.tagName.toLowerCase() === 'a') return;
-						location.href = anchor.href;
-					}
-				});
-			})();
-			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
-			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
-			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
-		}catch(err){ console.error('article load error', err); }
+			} catch(err) {
+				console.error('Error updating meta/JSON-LD:', err);
+			}
+		} catch(err) {
+			console.error('Article load error:', err);
+		}
 	}
 
-	if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();
+	// Load article when DOM is ready
+	if(document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', load);
+	} else {
+		load();
+	}
 })();
 </script>
 </body>
