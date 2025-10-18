@@ -42,17 +42,42 @@ export default async function handler(req, res) {
     const { db } = await connect();
     const col = db.collection(MONGODB_COLLECTION);
     let doc = null;
+    let lookupMethod = ''; // debug: which lookup path matched
+    let tried = [];
     if(slug){
       // convert slug back to a title-like string and do case-insensitive match
       const slugToTitle = slug.replace(/-/g, ' ').replace(/\s+/g,' ').trim();
+      tried.push(`title_exact:${slugToTitle}`);
       doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+      if(doc){ lookupMethod = 'title-exact-from-slug'; }
       // If slug lookup failed, as a fallback try matching the slug against a stored slug field (if present)
       if(!doc){
+        tried.push(`slug_field:${slug}`);
         doc = await col.findOne({ slug: slug }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+        if(doc) lookupMethod = 'slug-field';
+      }
+      if(!doc){
+        // looser matching: allow punctuation or extra words between parts
+        const parts = String(slug).split(/-+/).map(p => p.trim()).filter(Boolean).map(escapeForRegex);
+        if(parts.length){
+          const loosePattern = parts.join('.*');
+          tried.push(`title_loose:${loosePattern}`);
+          try{
+            doc = await col.findOne({ title: { $regex: loosePattern, $options: 'i' } }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+            if(doc) lookupMethod = 'title-loose';
+          }catch(e){
+            // ignore regex errors
+          }
+        }
       }
     } else {
+      tried.push(`title_exact_query:${title}`);
       doc = await col.findOne({ title: title }, { projection: { title: 1, body: 1, url: 1, scrapedAt: 1 } });
+      if(doc) lookupMethod = 'title-exact-query';
     }
+    // Expose lookup details in headers for debugging (safe: no secrets)
+    res.setHeader('X-Preview-Lookup', lookupMethod || 'none');
+    res.setHeader('X-Preview-Tried', tried.join('|'));
     if (!doc) return res.status(404).send('Not found');
 
   const proto = (req.headers['x-forwarded-proto'] || 'https');
