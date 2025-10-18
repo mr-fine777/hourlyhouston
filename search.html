@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+  <a href="#main" class="skip-link">Skip to main content</a>
 <header class="site-header">
   <div class="header-left">
     <a href="/" class="home-link">
@@ -28,7 +29,7 @@
   </div>
 </header>
 <div class="hero-container">
-  <div class="hero-body">
+  <div class="hero-body" id="main">
     <div class="hero" tabindex="-1" aria-live="polite">
       <img src="/img/houston.png" alt="Houston skyline">
       <h1 style="padding:18px;">Search results</h1>
@@ -180,11 +181,32 @@
     return posts;
   }
 
+  function slugify(s){
+    if(!s) return '';
+    return String(s).toLowerCase().trim()
+      .replace(/["'’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
   function renderResults(list, container){
     container.innerHTML = '';
+    container.setAttribute('role', 'list');
     if(!list.length){ container.innerHTML = '<div style="padding:20px;">No matching articles found.</div>'; return; }
     for(const post of list){
-      const row = document.createElement('div'); row.className = 'search-row';
+      // prefer server-provided slug, fallback to client-side slugify
+      const slug = post.slug ? String(post.slug).toLowerCase() : slugify(post.title || '');
+      const href = '/articles/' + encodeURIComponent(slug);
+
+      // make each result an anchor for proper semantics and keyboard support
+      const anchor = document.createElement('a');
+      anchor.className = 'search-row';
+      anchor.href = href;
+      anchor.setAttribute('role', 'listitem');
+      anchor.setAttribute('aria-label', post.title || 'Article');
+      anchor.style.textDecoration = 'none';
+      anchor.style.color = 'inherit';
+
       const imgWrap = document.createElement('div');
       const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
       imgWrap.appendChild(img);
@@ -196,10 +218,8 @@
 
       const right = document.createElement('div'); right.className = 'meta-date'; right.textContent = formatDate(post.scrapedAt || '');
 
-      // make whole row clickable
-      row.addEventListener('click', function(){ location.href = '/article.html?' + encodeURIComponent(post.title || ''); });
-      row.appendChild(imgWrap); row.appendChild(mid); row.appendChild(right);
-      container.appendChild(row);
+      anchor.appendChild(imgWrap); anchor.appendChild(mid); anchor.appendChild(right);
+      container.appendChild(anchor);
     }
   }
 
