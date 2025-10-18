@@ -9,6 +9,16 @@ import { MongoClient } from 'mongodb';
 let cachedClient = null;
 let cachedDb = null;
 
+function slugify(title){
+  if(!title) return '';
+  return String(title)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 async function connectToDatabase(uri, dbName) {
   if (cachedClient && cachedDb) return { client: cachedClient, db: cachedDb };
   const client = new MongoClient(uri, { ignoreUndefined: true });
@@ -49,6 +59,7 @@ export default async function handler(req, res) {
         _id: doc._id,
         title: doc.title || '',
         url: doc.url || '',
+        slug: slugify(doc.title || ''),
         body: doc.body || '',
         scrapedAt: doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : null,
       } : null;
@@ -65,6 +76,7 @@ export default async function handler(req, res) {
         _id: d._id,
         title: d.title || '',
         url: d.url || '',
+        slug: slugify(d.title || ''),
         body: d.body || '',
         scrapedAt: d.scrapedAt ? new Date(d.scrapedAt).toISOString() : null,
       } : null;
@@ -88,6 +100,7 @@ export default async function handler(req, res) {
       _id: d._id,
       title: d.title || '',
       url: d.url || '',
+      slug: slugify(d.title || ''),
       body: d.body || '',
       scrapedAt: d.scrapedAt ? new Date(d.scrapedAt).toISOString() : null,
     }));
