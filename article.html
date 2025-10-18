@@ -7,60 +7,62 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-	<title id="page-title">Hourly Houston</title>
+    <title id="page-title">Hourly Houston</title>
+	<!-- Social/SEO meta tags removed per request -->
 
     <!-- Injection templates: place small HTML widgets or scripts here using type="text/x-inject" and id matching the slot ids below.
 	    Example safe usage (paste into <head>):
 	    <script type="text/x-inject" id="inject-slot-1">&lt;div class="my-widget"&gt;Your widget HTML here&lt;/div&gt;</script>
 	    To execute JS instead of inserting HTML, add data-exec="true" and the runner will create and execute a real <script> element in the matching slot.
     -->
-	<!-- you can add your inject templates here in the head; see ids: inject-slot-1, inject-slot-2, inject-slot-3 -->
+    <!-- you can add your inject templates here in the head; see ids: inject-slot-1, inject-slot-2, inject-slot-3 -->
+	<meta name="description" content="Get updated content for Houston Hourly!">
+	<meta name="author" content="Hourly Houston">
+	<!-- Meta tags used/updated by client-side article script -->
+	<meta id="meta-desc" name="description" content="Get updated content for Houston Hourly!">
+	<!-- Open Graph -->
+	<meta id="meta-ogtitle" property="og:title" content="Hourly Houston">
+	<meta id="meta-ogdesc" property="og:description" content="Get updated content for Houston Hourly!">
+	<meta id="meta-ogimage" property="og:image" content="">
+	<meta id="meta-ogurl" property="og:url" content="">
+	<meta id="meta-ogsite" property="og:site_name" content="Hourly Houston">
+	<!-- Twitter Card -->
+	<meta id="meta-twitter-title" name="twitter:title" content="Hourly Houston">
+	<meta id="meta-twitter-desc" name="twitter:description" content="Get updated content for Houston Hourly!">
+	<meta id="meta-twitter-image" name="twitter:image" content="">
+	<!-- generic title meta used as fallback by script -->
+	<meta id="meta-name-title" name="title" content="Hourly Houston">
+	<!-- Early article identifier script: parse title from querystring and populate initial meta/title values -->
+	<script>
+	(function(){
+		// prefer the helper injected into <head>; fallback to local parsing
+		function _parseTitleFallback(){
+			try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
+		}
+		const articleTitle = getTitleFromQS();
+		// expose for other scripts
+		window.getArticleTitleFromQS = getTitleFromQS;
+		window.articleTitleFromQS = articleTitle;
+		if(articleTitle){
+			try{
+				const pageTitle = `Hourly Houston - ${articleTitle}`;
+				document.getElementById('page-title')?.textContent = pageTitle;
+				document.getElementById('meta-name-title')?.setAttribute('content', pageTitle);
+				document.getElementById('meta-ogtitle')?.setAttribute('content', articleTitle);
+				document.getElementById('meta-twitter-title')?.setAttribute('content', articleTitle);
+				document.getElementById('meta-ogurl')?.setAttribute('content', location.href);
+				const short = `Read ${articleTitle} on Hourly Houston`;
+				document.getElementById('meta-desc')?.setAttribute('content', short);
+				document.getElementById('meta-ogdesc')?.setAttribute('content', short);
+				document.getElementById('meta-twitter-desc')?.setAttribute('content', short);
+			}catch(e){ /* ignore if head nodes not present yet */ }
+		}
+	})();
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="UTF-8">
-	<meta property="og:site_name" content="Hourly Houston">
-	<meta property="og:title" id="og-title" content="Hourly Houston">
-	<meta property="og:description" id="og-desc" content="Latest Houston news and updates">
-	<meta property="og:type" content="article">
-	<meta property="og:url" id="og-url" content="https://hourlyhouston.com/article.html">
-	<meta property="og:image" id="og-image" content="/img/icoW.png">
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" id="twitter-title" content="Hourly Houston">
-	<meta name="twitter:description" id="twitter-desc" content="Latest Houston news and updates">
-	<meta name="twitter:image" id="twitter-image" content="/img/icoW.png">
 	<link rel="icon" href="img/ico.png" media="(prefers-color-scheme: light)">
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
-	
-	<script>
-		// Initialize SEO variables
-		window.seo = {
-			pageTitle: 'Hourly Houston',
-			desc: 'Latest Houston news and updates',
-			image: '/img/icoW.png',
-			url: window.location.href
-		};
-
-		// Function to update all SEO meta tags at once
-		window.updateSEO = function(data) {
-			const { title, desc, image, url } = data;
-			
-			// Update window title
-			document.title = title === 'Hourly Houston' ? title : `${title} - Hourly Houston`;
-			
-			// Update Open Graph tags
-			document.querySelector('meta[property="og:title"]').setAttribute('content', title);
-			document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
-			document.querySelector('meta[property="og:url"]').setAttribute('content', url);
-			document.querySelector('meta[property="og:image"]').setAttribute('content', image);
-			
-			// Update Twitter Card tags
-			document.querySelector('meta[name="twitter:title"]').setAttribute('content', title);
-			document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
-			document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
-			
-			// Store current values
-			window.seo = { pageTitle: title, desc, image, url };
-		};
-	</script>
 </head>
 <body>
 	<!-- Mobile menu toggle: button-driven accessible drawer (replaces checkbox pattern) -->
@@ -591,7 +593,7 @@
 	}
 
 	async function load(){
-		const title = getTitleFromQS();
+	const title = (typeof window.getArticleTitleFromQS === 'function') ? window.getArticleTitleFromQS() : _parseTitleFallback();
 		if(!title) return;
 		try{
 			const res = await fetch(`/api/posts?title=${encodeURIComponent(title)}`);
@@ -599,24 +601,40 @@
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
-
-            // Update SEO meta tags
-            window.updateSEO({
-                title: post.title || 'Hourly Houston',
-                desc: post.body ? post.body.split('\n')[0].trim() : 'Latest Houston news and updates',
-                image: post.url || '/img/icoW.png',
-                url: window.location.href
-            });
-
 			// replace hero content with only the article image
 			const heroEl = document.querySelector('.hero');
 			if(heroEl){
 				heroEl.innerHTML = '';
 				const img = document.createElement('img');
-				img.src = image;
-				img.alt = pageTitle;
+				img.src = post.url || '';
+				img.alt = post.title || '';
 				heroEl.appendChild(img);
 			}
+
+			// Populate SEO/meta tags so shared links show useful preview
+			try{
+				const firstPara = (post.body||'').split(/\n\n+/)[0] || '';
+				// set document title and meta tags for social previews
+				const pageTitle = `Hourly Houston - ${post.title || ''}`.trim();
+				document.getElementById('page-title').textContent = pageTitle;
+				// standard description
+				const desc = firstPara.replace(/\n/g,' ');
+				const img = 'ogImage.png';
+				const title = post.title || 'Hourly Houston';
+				document.getElementById('meta-desc').setAttribute('content', desc);
+				// Open Graph
+				document.getElementById('meta-ogtitle').setAttribute('content', title);
+				document.getElementById('meta-ogdesc').setAttribute('content', desc);
+				document.getElementById('meta-ogimage').setAttribute('content', img);
+				document.getElementById('meta-ogurl').setAttribute('content', location.href);
+				document.getElementById('meta-ogsite').setAttribute('content', 'Hourly Houston');
+				// Twitter
+				document.getElementById('meta-twitter-title').setAttribute('content', title);
+				document.getElementById('meta-twitter-desc').setAttribute('content', desc);
+				document.getElementById('meta-twitter-image').setAttribute('content', img);
+				// fallback meta name=title
+				document.getElementById('meta-name-title').setAttribute('content', pageTitle);
+			}catch(e){/* ignore if DOM meta nodes missing */}
 
 			// After inserting the article body, run any inject templates found in the head
 			// Find .inject-slot placeholders and populate from matching <script type="text/x-inject" id="inject-slot-N">
@@ -706,7 +724,6 @@
 					}
 				});
 			})();
-			// Update page content
 			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
 			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
