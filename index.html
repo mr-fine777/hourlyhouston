@@ -15,6 +15,7 @@
 	<link rel="icon" href="img/icoW.png" media="(prefers-color-scheme: dark)">
 </head>
 <body>
+	<a href="#main" class="skip-link">Skip to main content</a>
 	<!-- Mobile menu toggle: button-driven accessible drawer (replaces checkbox pattern) -->
 <header class="site-header">
 	<div class="header-left">
@@ -468,9 +469,10 @@
 					const h1 = document.createElement('h1'); h1.textContent = hero.title || '';
 					const p = document.createElement('p'); p.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
 					const h4 = document.createElement('h4'); h4.textContent = timeAgo(hero.scrapedAt || null);
-					// wrap hero content in a link to article page using encoded title
+					// wrap hero content in a link to article page using slug
 					const a = document.createElement('a');
-					a.href = `/article.html?${encodeURIComponent(hero.title || '')}`;
+					const slug = (hero.slug || (hero.title || '')).toString().toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+					a.href = `/articles/${encodeURIComponent(slug)}`;
 					a.setAttribute('aria-label', hero.title || 'Open article');
 					a.appendChild(heroImg);
 					a.appendChild(h1);
@@ -498,7 +500,8 @@
 						const body = document.createElement('p'); body.textContent = truncate(post.body || '', STORY_CHAR_LIMIT);
 						// make the whole card clickable and navigate to article.html by title
 						const link = document.createElement('a');
-						link.href = `/article.html?${encodeURIComponent(post.title || '')}`;
+						const slug = (post.slug || (post.title || '')).toString().toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+						link.href = `/articles/${encodeURIComponent(slug)}`;
 						link.setAttribute('aria-label', post.title || 'Open article');
 						link.appendChild(img);
 						link.appendChild(title);
