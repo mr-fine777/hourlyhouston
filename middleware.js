@@ -23,7 +23,8 @@ export default async function middleware(req){
     if(!isCrawler(ua)) return;
 
     const url = new URL(req.url);
-    if(url.pathname === '/article.html' && (url.search || url.searchParams.get('title'))){
+      // If request is for the classic client article page with a title query
+      if(url.pathname === '/article.html' && (url.search || url.searchParams.get('title'))){
       // Build a safe query for the preview endpoint.
       let titleQuery = '';
       if(url.search){
@@ -49,6 +50,21 @@ export default async function middleware(req){
         // if preview fetch fails, fall back to redirect (best-effort)
         const dest = `${url.origin}/api/preview?${titleQuery}`;
         return Response.redirect(dest, 307);
+      }
+    }
+    // If request is for friendly /articles/:slug, proxy preview to crawlers too
+    if(url.pathname.startsWith('/articles/') ){
+      const slug = url.pathname.replace(/^\/articles\//, '').replace(/\/+$/,'');
+      if(slug){
+        const previewUrl = `${url.origin}/api/preview?slug=${encodeURIComponent(slug)}`;
+        try{
+          const previewRes = await fetch(previewUrl, { method: 'GET', headers: { 'User-Agent': ua } });
+          const resHeaders = new Headers(previewRes.headers);
+          const buf = await previewRes.arrayBuffer();
+          return new Response(buf, { status: previewRes.status, headers: resHeaders });
+        }catch(err){
+          // fall back to letting the route render the client app
+        }
       }
     }
   }catch(e){ /* swallow errors to avoid breaking normal requests */ }
