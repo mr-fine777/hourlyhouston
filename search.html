@@ -196,11 +196,8 @@
 
       const right = document.createElement('div'); right.className = 'meta-date'; right.textContent = formatDate(post.scrapedAt || '');
 
-      // make whole row clickable using slug URL (spaces -> hyphens)
-      row.addEventListener('click', function(){
-        const slug = encodeURIComponent((post.title || '').replace(/\s+/g, '-'));
-        location.href = '/articles/' + slug;
-      });
+      // make whole row clickable
+      row.addEventListener('click', function(){ location.href = '/article.html?' + encodeURIComponent(post.title || ''); });
       row.appendChild(imgWrap); row.appendChild(mid); row.appendChild(right);
       container.appendChild(row);
     }
