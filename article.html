@@ -648,71 +648,7 @@
 				});
 			})();
 
-			// Helper: if the hero gets replaced by another page (race), offer a toggle so user can restore the article image
-			(function ensureHeroToggle(){
-				const hero = document.querySelector('.hero');
-				if(!hero) return;
-				// create toggle button (once)
-				let toggle = document.getElementById('hero-toggle-btn');
-				function makeToggle(){
-					if(toggle) return toggle;
-					toggle = document.createElement('button');
-					toggle.id = 'hero-toggle-btn';
-					toggle.textContent = 'Show article image';
-					toggle.setAttribute('aria-hidden','false');
-					toggle.style.position = 'absolute';				// position inside hero
-					toggle.style.right = '18px';
-					toggle.style.top = '18px';
-					toggle.style.zIndex = 5;
-					toggle.style.padding = '8px 12px';
-					toggle.style.borderRadius = '8px';
-					toggle.style.border = '0';
-					toggle.style.background = 'rgba(0,0,0,0.5)';
-					toggle.style.color = '#fff';
-					toggle.style.cursor = 'pointer';
-					hero.style.position = 'relative';
-					hero.appendChild(toggle);
-					return toggle;
-				}
-
-				function showArticleImage(){
-					hero.innerHTML = '';
-					const img = document.createElement('img'); img.src = post.url || ''; img.alt = post.title || '';
-					hero.appendChild(img);
-					if(toggle && toggle.parentNode) toggle.parentNode.removeChild(toggle);
-				}
-
-				// Observe hero for replacements and show toggle if needed
-				const obs = new MutationObserver(muts => {
-					const img = hero.querySelector('img');
-					if(img && img.src && post.url && img.src.indexOf(post.url) === -1){
-						// hero shows another image
-						makeToggle();
-						toggle.onclick = showArticleImage;
-					} else {
-						// hero already shows article image; remove toggle
-						if(toggle && toggle.parentNode) toggle.parentNode.removeChild(toggle);
-					}
-				});
-				obs.observe(hero, { childList: true, subtree: true });
-			})();
-
-			// If hero contains a link (most-recent article preview), make clicking the hero follow it
-			(function makeHeroClickable(){
-				const hero = document.querySelector('.hero');
-				if(!hero) return;
-				hero.addEventListener('click', function(e){
-					// don't intercept clicks on the toggle or inject slots
-					if(e.target.closest && e.target.closest('#hero-toggle-btn')) return;
-					if(e.target.closest && e.target.closest('.inject-slot')) return;
-					const anchor = hero.querySelector('a[href]');
-					if(anchor){
-						// if clicked directly on an existing link, allow default; otherwise navigate
-						if(e.target.tagName.toLowerCase() === 'a') return;
-						location.href = anchor.href;
-					}
-				});
-			})();
+			// Simplified hero handling: a single <img> is injected earlier; avoid mutation observers or extra event handlers.
 			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
 			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
