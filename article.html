@@ -39,9 +39,9 @@
 		function _parseTitleFallback(){
 			try{ return decodeURIComponent(location.search.replace(/^\?/,'')).trim(); }catch(e){ return ''; }
 		}
-		const articleTitle = getTitleFromQS();
+		const articleTitle = _parseTitleFallback();
 		// expose for other scripts
-		window.getArticleTitleFromQS = getTitleFromQS;
+		window.getArticleTitleFromQS = _parseTitleFallback;
 		window.articleTitleFromQS = articleTitle;
 		if(articleTitle){
 			try{
@@ -619,8 +619,18 @@
 				document.getElementById('page-title').textContent = pageTitle;
 				// standard description
 				const desc = firstPara.replace(/\n/g,' ');
-				const img = 'ogImage.png';
 				const title = post.title || 'Hourly Houston';
+				// prefer article image; use a sensible fallback
+				let img = post.url || '';
+				try{
+					// if img is relative, make it absolute based on location
+					if(img && !/^https?:\/\//i.test(img)){
+						const u = new URL(img, location.href);
+						img = u.href;
+					}
+				}catch(e){ /* leave img as-is */ }
+				if(!img) img = location.origin + '/ogImage.png';
+
 				document.getElementById('meta-desc').setAttribute('content', desc);
 				// Open Graph
 				document.getElementById('meta-ogtitle').setAttribute('content', title);
