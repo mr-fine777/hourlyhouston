@@ -587,36 +587,68 @@
 				heroEl.appendChild(img);
 			}
 
-			// Populate SEO/meta tags so shared links show useful preview
+			// Fetch metadata from sitemap for this article
 			try {
-				// Get first paragraph of body for description
-				const firstParagraph = post.body.split('\n')[0].trim();
+				const parser = new DOMParser();
 				const baseUrl = 'https://hourlyhouston.vercel.app';
-				const canonicalUrl = `${baseUrl}${location.pathname}${location.search}`;
-				const imageUrl = post.url.startsWith('http') ? post.url : `${baseUrl}${post.url}`;
-				const publishDate = post.scrapedAt ? new Date(post.scrapedAt).toISOString() : '';
+				const currentUrl = `${baseUrl}${location.pathname}${location.search}`;
 				
-				// Update page title
-				const pageTitle = `${post.title} - Hourly Houston`;
-				document.title = pageTitle;
-				document.getElementById('page-title').textContent = pageTitle;
+				// Fetch sitemap
+				const sitemapRes = await fetch('/api/sitemap');
+				const sitemapText = await sitemapRes.text();
+				const sitemap = parser.parseFromString(sitemapText, 'text/xml');
 				
-				// Update Open Graph tags
-				document.querySelector('meta[property="og:url"]').setAttribute('content', canonicalUrl);
-				document.querySelector('meta[property="og:title"]').setAttribute('content', post.title);
-				document.querySelector('meta[property="og:description"]').setAttribute('content', firstParagraph);
-				document.querySelector('meta[property="og:image"]').setAttribute('content', imageUrl);
-				document.querySelector('meta[property="og:image:alt"]').setAttribute('content', post.title);
-				document.querySelector('meta[property="article:published_time"]').setAttribute('content', publishDate);
+				// Find our article in the sitemap
+				const urls = sitemap.getElementsByTagName('url');
+				let articleMeta = null;
 				
-				// Update Twitter Card tags
-				document.querySelector('meta[name="twitter:title"]').setAttribute('content', post.title);
-				document.querySelector('meta[name="twitter:description"]').setAttribute('content', firstParagraph);
-				document.querySelector('meta[name="twitter:image"]').setAttribute('content', imageUrl);
+				for(const url of urls) {
+					const loc = url.getElementsByTagName('loc')[0]?.textContent;
+					if(loc === currentUrl) {
+						const newsTitle = url.querySelector('news\\:title')?.textContent;
+						const imageUrl = url.querySelector('image\\:loc')?.textContent;
+						const imageTitle = url.querySelector('image\\:title')?.textContent;
+						const imageCaption = url.querySelector('image\\:caption')?.textContent;
+						const pubDate = url.querySelector('news\\:publication_date')?.textContent;
+						
+						articleMeta = {
+							title: newsTitle,
+							image: imageUrl,
+							description: imageCaption,
+							publishDate: pubDate
+						};
+						break;
+					}
+				}
 				
-				// Update standard meta tags
-				document.querySelector('meta[name="title"]').setAttribute('content', pageTitle);
-				document.querySelector('meta[name="description"]').setAttribute('content', firstParagraph);
+				if(articleMeta) {
+					const pageTitle = `${articleMeta.title} - Hourly Houston`;
+					
+					// Update document title
+					document.title = pageTitle;
+					document.getElementById('page-title').textContent = pageTitle;
+					
+					// Update meta tags using data from sitemap
+					const metaTags = {
+						'meta[property="og:url"]': currentUrl,
+						'meta[property="og:title"]': articleMeta.title,
+						'meta[property="og:description"]': articleMeta.description,
+						'meta[property="og:image"]': articleMeta.image,
+						'meta[property="og:image:alt"]': articleMeta.title,
+						'meta[property="article:published_time"]': articleMeta.publishDate,
+						'meta[name="twitter:title"]': articleMeta.title,
+						'meta[name="twitter:description"]': articleMeta.description,
+						'meta[name="twitter:image"]': articleMeta.image,
+						'meta[name="title"]': pageTitle,
+						'meta[name="description"]': articleMeta.description
+					};
+					
+					// Update all meta tags
+					for(const [selector, content] of Object.entries(metaTags)) {
+						const tag = document.querySelector(selector);
+						if(tag) tag.setAttribute('content', content);
+					}
+				}
 			}catch(e){/* ignore if DOM meta nodes missing */}
 
 			// After inserting the article body, run any inject templates found in the head
