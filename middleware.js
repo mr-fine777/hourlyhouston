@@ -51,10 +51,25 @@ export default async function middleware(req){
         return Response.redirect(dest, 307);
       }
     }
+    // If request is for friendly /articles/:slug, proxy preview to crawlers too
+    if(url.pathname.startsWith('/articles/')){
+      const slug = url.pathname.replace(/^\/articles\//, '').replace(/\/+$/,'');
+      if(slug){
+        const previewUrl = `${url.origin}/api/preview?slug=${encodeURIComponent(slug)}`;
+        try{
+          const previewRes = await fetch(previewUrl, { method: 'GET', headers: { 'User-Agent': ua } });
+          const resHeaders = new Headers(previewRes.headers);
+          const buf = await previewRes.arrayBuffer();
+          return new Response(buf, { status: previewRes.status, headers: resHeaders });
+        }catch(err){
+          // fall back to letting the route render the client app
+        }
+      }
+    }
   }catch(e){ /* swallow errors to avoid breaking normal requests */ }
   // returning undefined lets the request continue to normal file handling
 }
 
 export const config = {
-  matcher: ['/article.html']
+  matcher: ['/article.html', '/articles/:slug*']
 };
