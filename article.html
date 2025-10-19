@@ -68,6 +68,7 @@
 	<div class="article-section">
 	<h1 id="title">Article Title</h1>
 	<h2 id="date">Article scrapedAt</h2>
+	<h3 style="color: #888; font-style: italic;" id="sourcedBy">Image Source</h3>
 	<p id="body">Article Body</p>
 	</div>
 	
@@ -683,6 +684,14 @@
 			const t = document.getElementById('title'); if(t) t.textContent = post.title || '';
 			const dt = document.getElementById('date'); if(dt) dt.textContent = formatDate(post.scrapedAt || null);
 			const b = document.getElementById('body'); if(b) b.innerHTML = bodyToHtml(post.body || '');
+			// Populate the image source (sourcedBy) if present in the MongoDB post document
+			try{
+				const sb = document.getElementById('sourcedBy');
+				if(sb){
+					// Prefer post.sourcedBy, fall back to empty string
+					sb.textContent = post.sourcedBy || '';
+				}
+			}catch(e){ /* ignore if DOM missing */ }
 		}catch(err){ console.error('article load error', err); }
 	}
 
