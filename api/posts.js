@@ -64,12 +64,12 @@ export default async function handler(req, res) {
         let doc = null;
         if(slugQuery){
           // try slug match first (stored slug field)
-          doc = await col.findOne({ slug: slugQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+          doc = await col.findOne({ slug: slugQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } });
           if(!doc){
             // fallback to title-like matching from slug
             const slugToTitle = String(slugQuery).replace(/-/g,' ').replace(/\s+/g,' ').trim();
             // Try exact-title-like match first (case-insensitive)
-            doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+            doc = await col.findOne({ title: { $regex: `^${escapeForRegex(slugToTitle)}$`, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } });
             if(!doc){
               // Looser fallback: convert slug parts into a permissive regex that allows
               // punctuation or words between parts. Example: 'foo-bar_baz' -> /foo.*bar.*baz/i
@@ -77,13 +77,13 @@ export default async function handler(req, res) {
               if(parts.length){
                 const loosePattern = parts.join('.*');
                 try{
-                  doc = await col.findOne({ title: { $regex: loosePattern, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+                  doc = await col.findOne({ title: { $regex: loosePattern, $options: 'i' } }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } });
                 }catch(e){ /* if regex is invalid or DB errors, ignore and continue */ }
               }
             }
           }
         } else if(titleQuery){
-          doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } });
+          doc = await col.findOne({ title: titleQuery }, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } });
         }
       const out = doc ? {
         _id: doc._id,
@@ -91,6 +91,7 @@ export default async function handler(req, res) {
         url: doc.url || '',
           slug: slugify(doc.title || ''),
         body: doc.body || '',
+        sourcedBy: doc.sourcedBy || '',
         scrapedAt: doc.scrapedAt ? new Date(doc.scrapedAt).toISOString() : null,
       } : null;
       res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
@@ -100,7 +101,7 @@ export default async function handler(req, res) {
 
     // If ?hero=1 return only the most recent document
     if(req.query && req.query.hero === '1'){
-      const heroDoc = await col.find({}, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } }).sort({ scrapedAt: -1 }).limit(1).toArray();
+  const heroDoc = await col.find({}, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } }).sort({ scrapedAt: -1 }).limit(1).toArray();
       const d = heroDoc[0] || null;
       const out = d ? {
         _id: d._id,
@@ -108,6 +109,7 @@ export default async function handler(req, res) {
         url: d.url || '',
         slug: slugify(d.title || ''),
         body: d.body || '',
+        sourcedBy: d.sourcedBy || '',
         scrapedAt: d.scrapedAt ? new Date(d.scrapedAt).toISOString() : null,
       } : null;
       res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
@@ -123,7 +125,7 @@ export default async function handler(req, res) {
     const skip = Math.max(0, (page - 1) * perPage) + (totalDocs > 0 ? 1 : 0);
     const limit = perPage;
 
-    const cursor = col.find({}, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1 } }).sort({ scrapedAt: -1 }).skip(skip).limit(limit);
+  const cursor = col.find({}, { projection: { title: 1, url: 1, body: 1, scrapedAt: 1, sourcedBy: 1 } }).sort({ scrapedAt: -1 }).skip(skip).limit(limit);
     const docs = await cursor.toArray();
 
     const out = docs.map(d => ({
@@ -132,6 +134,7 @@ export default async function handler(req, res) {
       url: d.url || '',
       slug: slugify(d.title || ''),
       body: d.body || '',
+      sourcedBy: d.sourcedBy || '',
       scrapedAt: d.scrapedAt ? new Date(d.scrapedAt).toISOString() : null,
     }));
 
