@@ -702,6 +702,12 @@ body.menu-open .site-header { pointer-events: auto; }
 
 .article-section h2{
   font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+
+
+.article-section h3{
+  font-size: 1.7rem;
   margin-bottom: 40px;
 }
 
