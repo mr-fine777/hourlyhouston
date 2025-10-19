@@ -61,9 +61,7 @@
 <div class="hero-container">
 <div class="hero-body">
 		
-        	<div class="hero" tabindex="-1" aria-live="polite">
-        		<img id="hero-img" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:auto; object-fit:cover;" />
-        	</div>
+        	<img id="hero-img" tabindex="-1" aria-live="polite" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:auto; object-fit:cover;" />
 		
 	<div class="article-section">
 	<h1 id="title">Article Title</h1>
@@ -474,15 +472,22 @@
 					if(!r.ok) throw new Error('hero fetch failed');
 					const data = await r.json();
 					const hero = data && data.post ? data.post : null;
-					const heroEl = document.querySelector('.hero');
-					if(!heroEl) return;
-					heroEl.innerHTML = '';
-					if(!hero){ heroEl.textContent = 'No posts available'; return; }
-					const heroImg = document.createElement('img'); heroImg.src = hero.url || ''; heroImg.alt = hero.title || '';
-					const h1 = document.createElement('h1'); h1.textContent = hero.title || '';
-					const p = document.createElement('p'); p.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
-					const h4 = document.createElement('h4'); h4.textContent = timeAgo(hero.scrapedAt || null);
-					heroEl.appendChild(heroImg); heroEl.appendChild(h1); heroEl.appendChild(p); heroEl.appendChild(h4);
+										// Use standalone #hero-img for hero image and update nearby hero text nodes
+										const heroImgEl = document.getElementById('hero-img');
+										if(!heroImgEl){ console.warn('hero image element missing'); return; }
+										if(!hero){
+											heroImgEl.style.display = 'none';
+											// optionally clear nearby title/date/body placeholders
+											return;
+										}
+										// set image and show
+										heroImgEl.src = hero.url || '';
+										heroImgEl.alt = hero.title || '';
+										heroImgEl.style.display = '';
+										// set the page-level hero title/date/body in case index shows them
+										const heroTitle = document.querySelector('.hero h1'); if(heroTitle) heroTitle.textContent = hero.title || '';
+										const heroP = document.querySelector('.hero p'); if(heroP) heroP.textContent = truncate(hero.body || '', HERO_CHAR_LIMIT);
+										const heroTime = document.querySelector('.hero h4'); if(heroTime) heroTime.textContent = timeAgo(hero.scrapedAt || null);
 				}catch(err){ console.error('loadHero error', err); }
 			}
 
