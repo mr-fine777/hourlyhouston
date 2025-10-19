@@ -61,7 +61,9 @@
 <div class="hero-container">
 <div class="hero-body">
 		
-		<div class="hero" tabindex="-1" aria-live="polite"></div>
+        	<div class="hero" tabindex="-1" aria-live="polite">
+        		<img id="hero-img" alt="" loading="lazy" decoding="async" style="display:none; width:100%; height:auto; object-fit:cover;" />
+        	</div>
 		
 	<div class="article-section">
 	<h1 id="title">Article Title</h1>
@@ -173,7 +175,6 @@
 	<h1>Channelview</h1>
 	<h2 id="77530"></h2>
 	</div>
-	<div class="side-ad-card">
 	
 	</div>
   </div>
@@ -592,20 +593,34 @@
 			const json = await res.json();
 			const post = json && json.post ? json.post : null;
 			if(!post) return;
-			// replace hero content with only the article image (use post.url or post.image)
-			const heroEl = document.querySelector('.hero');
-			if(heroEl){
+			// set hero image (use post.url or post.image). Prefer an existing #hero-img element
+			try{
 				const imgUrl = post.url || post.image || '';
-				heroEl.innerHTML = '';
-				if(imgUrl){
-					const img = document.createElement('img');
-					img.src = imgUrl;
-					img.alt = post.title || '';
-					img.loading = 'lazy';
-					img.decoding = 'async';
-					heroEl.appendChild(img);
+				const heroEl = document.querySelector('.hero');
+				const existingImg = document.getElementById('hero-img');
+				if(existingImg){
+					if(imgUrl){
+						existingImg.src = imgUrl;
+						existingImg.alt = post.title || '';
+						existingImg.style.display = '';
+					} else {
+						// hide if no image available
+						existingImg.removeAttribute('src');
+						existingImg.style.display = 'none';
+					}
+				} else if(heroEl){
+					// fallback: create an image element as before
+					if(imgUrl){
+						heroEl.innerHTML = '';
+						const img = document.createElement('img');
+						img.src = imgUrl;
+						img.alt = post.title || '';
+						img.loading = 'lazy';
+						img.decoding = 'async';
+						heroEl.appendChild(img);
+					}
 				}
-			}
+			}catch(e){ console.warn('hero image set failed', e); }
 
 			// Populate SEO/meta tags so shared links show useful preview
 			try{
