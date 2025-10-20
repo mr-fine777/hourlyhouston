@@ -589,18 +589,70 @@
 			}
 			if(!title && !slugFromPath) return;
 		try{
-			// Fetch by title or slug depending on what's available
-			const q = title ? `title=${encodeURIComponent(title)}` : `slug=${encodeURIComponent(slugFromPath)}`;
-			const fetchUrl = `/api/posts?${q}`;
-			const res = await fetch(fetchUrl);
-			if(!res.ok){
-				// log body where possible to help debug server errors (500)
-				console.error('article fetch failed', fetchUrl, res.status, await res.text().catch(()=>'<no-body>'));
+			// Helper: fetch with retries
+			async function fetchWithRetries(url, options = {}, retries = 3, backoff = 300){
+				let lastErr = null;
+				for(let i=0;i<retries;i++){
+					try{
+						const r = await fetch(url, options);
+						if(!r.ok) throw new Error(`HTTP ${r.status}`);
+						return r;
+					}catch(err){
+						lastErr = err;
+						// exponential-ish backoff
+						await new Promise(res => setTimeout(res, backoff * (i+1)));
+					}
+				}
+				throw lastErr;
+			}
+
+			// Try several query strategies in sequence: title (exact), slug, loose slug-match, then fallback to hero
+			const attempts = [];
+			if(title) attempts.push({ q: `title=${encodeURIComponent(title)}`, desc: 'title exact' });
+			if(slugFromPath) attempts.push({ q: `slug=${encodeURIComponent(slugFromPath)}`, desc: 'slug' });
+			// also try using the slug decoded as a title fallback (replace - with space)
+			if(slugFromPath){
+				const maybeTitle = decodeURIComponent(slugFromPath).replace(/-/g,' ').trim();
+				if(maybeTitle && maybeTitle !== title) attempts.push({ q: `title=${encodeURIComponent(maybeTitle)}`, desc: 'slug-as-title' });
+			}
+
+			let post = null;
+			let lastError = null;
+			for(const a of attempts){
+				const fetchUrl = `/api/posts?${a.q}`;
+				try{
+					const res = await fetchWithRetries(fetchUrl, {}, 3, 250);
+					const json = await res.json();
+					if(json && json.post){ post = json.post; break; }
+					// 404-ish or no post returned, continue to next strategy
+					lastError = new Error(`no post for ${a.desc}`);
+				}catch(err){
+					console.warn('attempt failed', a.desc, err);
+					lastError = err;
+					// continue to next strategy
+				}
+			}
+
+			// If still no post, try fetching the hero (most recent) as a last-resort graceful fallback
+			if(!post){
+				try{
+					const heroRes = await fetchWithRetries(`/api/posts?hero=1`, {}, 2, 200);
+					if(heroRes && heroRes.ok){
+						const hj = await heroRes.json();
+						if(hj && hj.post) post = hj.post;
+					}
+				}catch(err){
+					console.warn('hero fallback failed', err);
+				}
+			}
+
+			if(!post){
+				// Nothing we can do — log and show a user-facing message in the body element
+				console.error('article load failed', lastError);
+				const bEl = document.getElementById('body');
+				if(bEl) bEl.innerHTML = '<p>Sorry, this article could not be loaded right now. Please refresh the page or try again later.</p>';
 				return;
 			}
-			const json = await res.json();
-			const post = json && json.post ? json.post : null;
-			if(!post) return;
 			// set hero image (use post.url or post.image). Prefer an existing #hero-img element
 			try{
 				const imgUrl = post.url || post.image || '';
